@@ -185,3 +185,43 @@ Solve(Board<rows, cols> board, std::vector<Direction>& steps, int maxDepth)
     }
     return std::nullopt;
 }
+
+template<size_t rows, size_t cols>
+struct Task
+{
+    Board<rows, cols> board;
+    std::vector<Direction> steps;
+};
+
+template<size_t rows, size_t cols>
+std::list<Task<rows,cols>> GenerateTasks(const Board<rows,cols>& board, int preferedTasks)
+{
+    std::list<Task<rows,cols>> tasks;
+    tasks.push_back({ board,{} });
+
+    while (!tasks.empty() && tasks.size() < preferedTasks)
+    {
+        auto task = tasks.front();
+
+        if (Finished(task.board))
+            return { task };
+
+        tasks.pop_front();
+
+
+		for (auto direction : Directions)
+		{
+			if (!task.steps.empty() && direction == Opposite(task.steps.back()))
+				continue;
+
+			auto target = Move(task.board.emptyPosition, direction);
+			if (!ValidPosition<rows, cols>(target))
+				continue;
+
+            auto steps = task.steps;
+            steps.push_back(direction);
+            tasks.push_back({ Moved<false>(task.board,direction),steps });
+		}
+    }
+    return tasks;
+}

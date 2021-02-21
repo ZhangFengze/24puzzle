@@ -1,5 +1,6 @@
 #include "solver.h"
 #include <string>
+#include <ppl.h>
 
 std::string ToString(Direction d)
 {
@@ -35,25 +36,9 @@ std::string ToString(const Board<rows, cols>& board)
     return out;
 }
 
-int main()
+template<typename Board>
+void Solver0(const Board& board)
 {
-    auto board = MakeBoard<5,5>(
-        {
-            0,  24,  2,  9,  4,
-            5,  6,  7,  3,  8,
-            10, 11, 12, 13, 14,
-            15, 16, 22, 18, 19,
-            20, 21, 23, 17, 1
-        });
-    std::cout << ToString(board) << std::endl;
-
-    if (!Solvable(board))
-    {
-        std::cout << "not solable";
-        return 0;
-    }
-    std::cout << "sovable" << std::endl;
-
     for (int depth = 0;;++depth)
     {
         std::cout << "depth: " << depth << "\n";
@@ -69,5 +54,102 @@ int main()
             break;
         }
     }
+}
+
+template<size_t rows, size_t cols>
+void Solver1(const Board<rows,cols>& board)
+{
+	auto tasks = GenerateTasks(board, 60);
+
+    for (int depth = 0;; ++depth)
+    {
+        std::cout << "depth: " << depth << "\n";
+
+        std::mutex mutex;
+        std::optional<std::vector<Direction>> steps;
+
+        Concurrency::parallel_for_each(tasks.begin(), tasks.end(),
+            [depth, &mutex, &steps](auto task)
+        {
+            {
+				std::scoped_lock lock{ mutex };
+				if (steps)
+					return;
+            }
+            auto thisSteps = Solve(task.board, task.steps, depth);
+            if (!thisSteps)
+                return;
+            std::scoped_lock lock{ mutex };
+            if (!steps)
+                steps = thisSteps;
+        });
+
+		if (steps)
+		{
+			std::cout << "got steps:";
+			for (auto step : *steps)
+				std::cout << ToString(step) << "\t";
+			return;
+		}
+    }
+}
+
+std::vector<Board<5,5>> boards =
+{
+    MakeBoard<5,5>
+    ({
+        0,  1,  2,  3,  4,
+        5,  6,  7,  8,  9,
+        10, 11, 12, 13, 14,
+        15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24
+    }),
+    MakeBoard<5,5>
+    ({
+        0,  1,  2,  3,  4,
+        5,  6,  7,  8,  9,
+        10, 11, 12, 24, 14,
+        15, 16, 17, 18, 19,
+        20, 21, 22, 23, 13 
+    }),
+    MakeBoard<5,5>
+    ({
+        0,  1,  2,  3,  4,
+        5,  11,  7,  8,  9,
+        10, 6, 12, 24, 14,
+        15, 21, 17, 18, 19,
+        20, 16, 22, 23, 13 
+    }),
+    MakeBoard<5,5>
+    ({
+        0,  6,  2,  3,  4,
+        5,  1,  7,  8,  9,
+        10, 11, 12, 24, 14,
+        15, 21, 17, 18, 19,
+        20, 16, 22, 23, 13 
+    }),
+    MakeBoard<5,5>
+    ({
+        0,  24,  2,  9,  4,
+        5,  6,  7,  3,  8,
+        10, 11, 12, 18, 14,
+        15, 21, 22, 13, 19,
+        20, 16, 23, 17, 1
+    })
+};
+
+int main()
+{
+    auto board = boards[4];
+    std::cout << ToString(board) << std::endl;
+
+    if (!Solvable(board))
+    {
+        std::cout << "not solable";
+        return 0;
+    }
+    std::cout << "sovable" << std::endl;
+
+    Solver1(board);
     return 0;
 }
