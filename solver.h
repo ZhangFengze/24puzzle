@@ -59,7 +59,7 @@ struct Board
 };
 
 template<size_t rows, size_t cols>
-Board<rows, cols> MakeBoard(const std::array<int, rows* cols>& raw)
+constexpr Board<rows, cols> MakeBoard(const std::array<int, rows* cols>& raw)
 {
     Board<rows, cols> board;
     for (int i = 0; i < raw.size(); ++i)
@@ -69,18 +69,18 @@ Board<rows, cols> MakeBoard(const std::array<int, rows* cols>& raw)
 }
 
 template<size_t rows, size_t cols>
-Board<rows, cols> FinishedBoard()
+constexpr Board<rows, cols> FinishedBoard()
 {
 	std::array<int, rows* cols> board;
 	std::iota(board.begin(), board.end(), 0);
-	return MakeBoard(board);
+	return MakeBoard<rows,cols>(board);
 }
 
 template<size_t rows, size_t cols>
 constexpr bool Finished(const Board<rows, cols>& board)
 {
     static constexpr auto finished = FinishedBoard<rows,cols>();
-    return board.board == finished;
+    return board == finished;
 }
 
 // http://blog.csdn.net/hnust_xiehonghao/article/details/7951173
