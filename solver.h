@@ -1,3 +1,18 @@
+#include <optional>
+#include <vector>
+
+namespace n_puzzle_solver
+{
+    enum class Direction
+    {
+        Up, Right, Down, Left
+    };
+    template<size_t rows, size_t cols>
+	std::optional<std::vector<Direction>> Solve(const std::array<int, rows* cols>&);
+}
+
+// internals
+
 #include <array>
 #include <list>
 #include <vector>
@@ -8,229 +23,364 @@
 #include <iostream>
 #include <algorithm>
 #include <execution>
+#include <thread>
+#include <atomic>
+#include <mutex>
+#include <memory>
+#include <future>
+#include <ppl.h>
+#include <concurrent_queue.h>
 
-enum class Direction
+namespace n_puzzle_solver
 {
-	Up, Right, Down, Left
-};
-constexpr std::array<Direction, 4> Directions =
-{ Direction::Up,Direction::Right,Direction::Down,Direction::Left };
-
-constexpr Direction Opposite(Direction direction)
-{
-    int i = int(direction);
-    return Direction((i + 2) % 4);
-    //static constexpr std::array<Direction, 4> opposites =
-    //{ Direction::Down,Direction::Left,Direction::Up,Direction::Right };
-    //return opposites[(int)direction];
-}
-
-template<size_t rows, size_t cols>
-struct Position
-{
-    int8_t x;
-    int8_t y;
-    int16_t index;
-
-    constexpr Position() = default;
-	constexpr Position(int x_, int y_) :x(x_), y(y_), index(x + y * cols) {}
-	constexpr Position(int index_) : Position(index_% cols, index_ / cols) {}
-
-    constexpr bool operator==(const Position& other) const { return index == other.index; }
-    constexpr Position operator+(const Position& other) const { return { x + other.x,y + other.y }; }
-};
-
-template<typename Position>
-constexpr std::array<Position, 4> offsets =
-{ Position{0,-1},Position{1,0},Position{0,1},Position{-1,0} };
-
-template<typename Position>
-constexpr Position Move(const Position& position, Direction direction)
-{
-	return position + offsets<Position>[(int)direction];
-}
-
-template<size_t rows, size_t cols>
-struct Board
-{
-    std::array<Position<rows,cols>, rows* cols> board;
-    Position<rows,cols> emptyPosition;
-    constexpr bool operator==(const Board&) const = default;
-};
-
-template<size_t rows, size_t cols>
-constexpr Board<rows, cols> MakeBoard(const std::array<int, rows* cols>& raw)
-{
-    Board<rows, cols> board;
-    for (int i = 0; i < raw.size(); ++i)
-        board.board[i] = raw[i];
-    board.emptyPosition = (int)std::distance(raw.begin(), std::find(raw.begin(), raw.end(), rows * cols - 1));
-    return board;
-}
-
-template<size_t rows, size_t cols>
-constexpr Board<rows, cols> FinishedBoard()
-{
-	std::array<int, rows* cols> board;
-	std::iota(board.begin(), board.end(), 0);
-	return MakeBoard<rows,cols>(board);
-}
-
-template<size_t rows, size_t cols>
-constexpr bool Finished(const Board<rows, cols>& board)
-{
-    static constexpr auto finished = FinishedBoard<rows,cols>();
-    return board == finished;
-}
-
-// http://blog.csdn.net/hnust_xiehonghao/article/details/7951173
-template<size_t rows, size_t cols>
-bool Solvable(const Board<rows, cols>& board)
-{
-    int reverseOrder = 0;
-    for (int i = 0; i < rows * cols; ++i) 
+    namespace impl
     {
-        if (board.board[i].index == rows * cols - 1)
-            continue;
-        for (int j = i + 1; j < rows * cols; ++j) 
+        constexpr std::array<Direction, 4> Directions =
+        { Direction::Up,Direction::Right,Direction::Down,Direction::Left };
+
+        constexpr Direction Opposite(Direction direction)
         {
-			if (board.board[i].index > board.board[j].index)
-                ++reverseOrder;
+            int i = int(direction);
+            return Direction((i + 2) % 4);
+            //static constexpr std::array<Direction, 4> opposites =
+            //{ Direction::Down,Direction::Left,Direction::Up,Direction::Right };
+            //return opposites[(int)direction];
         }
-    }
 
-    if constexpr(cols % 2 == 1)
-        return reverseOrder % 2 == 0;
+        template<size_t rows, size_t cols>
+        struct Position
+        {
+            int8_t x;
+            int8_t y;
+            int16_t index;
 
-    return ((rows - 1) - board.emptyPosition.y) % 2 == reverseOrder % 2;
-}
+            constexpr Position() = default;
+            constexpr Position(int x_, int y_) :x(x_), y(y_), index(x + y * cols) {}
+            constexpr Position(int index_) : Position(index_% cols, index_ / cols) {}
 
-template<size_t rows,size_t cols>
-constexpr std::array<Position<rows, cols>, rows* cols> PossiblePositions = []() constexpr
-{
-    std::array<Position<rows, cols>, rows* cols> positions;
-	for (int index = 0; index < rows * cols;++index)
-        positions[index] = Position<rows, cols>(index);
-    return positions;
-}();
+            constexpr bool operator==(const Position& other) const { return index == other.index; }
+            constexpr Position operator+(const Position& other) const { return { x + other.x,y + other.y }; }
+        };
 
-template<size_t rows,size_t cols>
-int ManhattanDistance(const Board<rows, cols>& board)
-{
-    int cnt = 0;
-    for (const auto& nowPosition : PossiblePositions<rows, cols>)
-    {
-        if (nowPosition == board.emptyPosition)
-            continue;
-        const auto& targetPosition = board.board[nowPosition.index];
-        cnt += abs(targetPosition.x - nowPosition.x) + abs(targetPosition.y - nowPosition.y);
-    }
-    return cnt;
-    //return std::accumulate(PossiblePositions<rows, cols>.begin(), PossiblePositions<rows, cols>.end(), 0,
-    //    [&](int now, auto nowPosition)
-    //{
-    //    if (nowPosition == board.emptyPosition)
-    //        return now;
-    //    const auto& targetPosition = board.board[nowPosition.index];
-    //    return now + abs(targetPosition.x - nowPosition.x) + abs(targetPosition.y - nowPosition.y);
-    //});
-}
+        template<typename Position>
+        constexpr std::array<Position, 4> offsets =
+        { Position{0,-1},Position{1,0},Position{0,1},Position{-1,0} };
 
-template<size_t rows, size_t cols>
-bool ValidPosition(const Position<rows, cols>& position)
-{
-    return position.x >= 0 && position.x < cols&& position.y >= 0 && position.y < rows;
-}
+        template<typename Position>
+        constexpr Position Move(const Position& position, Direction direction)
+        {
+            return position + offsets<Position>[(int)direction];
+        }
 
-template<bool check, size_t rows, size_t cols>
-Board<rows, cols> Moved(const Board<rows, cols>& board, Direction direction)
-{
-    auto copy = board;
-    Move<check>(copy, direction);
-    return copy;
-}
+        template<size_t rows, size_t cols>
+        struct Board
+        {
+            std::array<Position<rows,cols>, rows* cols> board;
+            Position<rows,cols> emptyPosition;
+            constexpr bool operator==(const Board&) const = default;
+        };
 
-template<bool check, size_t rows, size_t cols>
-void Move(Board<rows, cols>& board, Direction direction)
-{
-    const auto& now = board.emptyPosition;
-    auto target = Move(now, direction);
-    if constexpr (check)
-    {
-		if (!ValidPosition<rows, cols>(target))
-			return;
-    }
-    std::swap(board.board[now.index], board.board[target.index]);
-    board.emptyPosition = target;
-}
+        template<size_t rows, size_t cols>
+        constexpr Board<rows, cols> MakeBoard(const std::array<int, rows* cols>& raw)
+        {
+            Board<rows, cols> board;
+            for (int i = 0; i < raw.size(); ++i)
+                board.board[i] = raw[i];
+            board.emptyPosition = (int)std::distance(raw.begin(), std::find(raw.begin(), raw.end(), rows * cols - 1));
+            return board;
+        }
 
-template<size_t rows, size_t cols>
-std::optional<std::vector<Direction>>
-Solve(Board<rows, cols> board, std::vector<Direction>& steps, int maxDepth)
-{
-    int h = ManhattanDistance(board);
-    if (h == 0)
-        return steps;
-    if (steps.size() + h > maxDepth)
-        return std::nullopt;
-    for (auto direction : Directions)
-    {
-        if (!steps.empty() && direction == Opposite(steps.back()))
-            continue;
+        template<size_t rows, size_t cols>
+        constexpr Board<rows, cols> FinishedBoard()
+        {
+            std::array<int, rows* cols> board;
+            std::iota(board.begin(), board.end(), 0);
+            return MakeBoard<rows,cols>(board);
+        }
 
-		auto target = Move(board.emptyPosition, direction);
-		if (!ValidPosition<rows, cols>(target))
-            continue;
+        template<size_t rows, size_t cols>
+        constexpr bool Finished(const Board<rows, cols>& board)
+        {
+            static constexpr auto finished = FinishedBoard<rows,cols>();
+            return board == finished;
+        }
 
-        steps.push_back(direction);
-        Move<false>(board, direction);
+        // http://blog.csdn.net/hnust_xiehonghao/article/details/7951173
+        template<size_t rows, size_t cols>
+        bool Solvable(const Board<rows, cols>& board)
+        {
+            int reverseOrder = 0;
+            for (int i = 0; i < rows * cols; ++i) 
+            {
+                if (board.board[i].index == rows * cols - 1)
+                    continue;
+                for (int j = i + 1; j < rows * cols; ++j) 
+                {
+                    if (board.board[i].index > board.board[j].index)
+                        ++reverseOrder;
+                }
+            }
 
-        auto result = Solve(board, steps, maxDepth);
-        if (result)
-            return result;
+            if constexpr(cols % 2 == 1)
+                return reverseOrder % 2 == 0;
 
-        Move<false>(board, Opposite(direction));
-        steps.pop_back();
-    }
-    return std::nullopt;
-}
+            return ((rows - 1) - board.emptyPosition.y) % 2 == reverseOrder % 2;
+        }
 
-template<size_t rows, size_t cols>
-struct Task
-{
-    Board<rows, cols> board;
-    std::vector<Direction> steps;
-};
+        template<size_t rows,size_t cols>
+        constexpr std::array<Position<rows, cols>, rows* cols> PossiblePositions = []() constexpr
+        {
+            std::array<Position<rows, cols>, rows* cols> positions;
+            for (int index = 0; index < rows * cols;++index)
+                positions[index] = Position<rows, cols>(index);
+            return positions;
+        }();
 
-template<size_t rows, size_t cols>
-std::list<Task<rows,cols>> GenerateTasks(const Board<rows,cols>& board, int preferedTasks)
-{
-    std::list<Task<rows,cols>> tasks;
-    tasks.push_back({ board,{} });
+        template<size_t rows,size_t cols>
+        int ManhattanDistance(const Board<rows, cols>& board)
+        {
+            int cnt = 0;
+            for (const auto& nowPosition : PossiblePositions<rows, cols>)
+            {
+                if (nowPosition == board.emptyPosition)
+                    continue;
+                const auto& targetPosition = board.board[nowPosition.index];
+                cnt += abs(targetPosition.x - nowPosition.x) + abs(targetPosition.y - nowPosition.y);
+            }
+            return cnt;
+            //return std::accumulate(PossiblePositions<rows, cols>.begin(), PossiblePositions<rows, cols>.end(), 0,
+            //    [&](int now, auto nowPosition)
+            //{
+            //    if (nowPosition == board.emptyPosition)
+            //        return now;
+            //    const auto& targetPosition = board.board[nowPosition.index];
+            //    return now + abs(targetPosition.x - nowPosition.x) + abs(targetPosition.y - nowPosition.y);
+            //});
+        }
 
-    while (!tasks.empty() && tasks.size() < preferedTasks)
-    {
-        auto task = tasks.front();
+        template<size_t rows, size_t cols>
+        bool ValidPosition(const Position<rows, cols>& position)
+        {
+            return position.x >= 0 && position.x < cols&& position.y >= 0 && position.y < rows;
+        }
 
-        if (Finished(task.board))
-            return { task };
+        template<bool check, size_t rows, size_t cols>
+        Board<rows, cols> Moved(const Board<rows, cols>& board, Direction direction)
+        {
+            auto copy = board;
+            Move<check>(copy, direction);
+            return copy;
+        }
 
-        tasks.pop_front();
+        template<bool check, size_t rows, size_t cols>
+        void Move(Board<rows, cols>& board, Direction direction)
+        {
+            const auto& now = board.emptyPosition;
+            auto target = Move(now, direction);
+            if constexpr (check)
+            {
+                if (!ValidPosition<rows, cols>(target))
+                    return;
+            }
+            std::swap(board.board[now.index], board.board[target.index]);
+            board.emptyPosition = target;
+        }
+
+        template<size_t rows, size_t cols>
+        std::optional<std::vector<Direction>>
+        Solve(Board<rows, cols> board, std::vector<Direction>& steps, int maxDepth)
+        {
+            int h = ManhattanDistance(board);
+            if (h == 0)
+                return steps;
+            if (steps.size() + h > maxDepth)
+                return std::nullopt;
+            for (auto direction : Directions)
+            {
+                if (!steps.empty() && direction == Opposite(steps.back()))
+                    continue;
+
+                auto target = Move(board.emptyPosition, direction);
+                if (!ValidPosition<rows, cols>(target))
+                    continue;
+
+                steps.push_back(direction);
+                Move<false>(board, direction);
+
+                auto result = Solve(board, steps, maxDepth);
+                if (result)
+                    return result;
+
+                Move<false>(board, Opposite(direction));
+                steps.pop_back();
+            }
+            return std::nullopt;
+        }
+
+        template<size_t rows, size_t cols>
+        struct Task
+        {
+            Board<rows, cols> board;
+            std::vector<Direction> steps;
+        };
+
+        template<size_t rows, size_t cols>
+        std::list<Task<rows,cols>> GenerateTasks(const Board<rows,cols>& board, int preferedTasks)
+        {
+            std::list<Task<rows,cols>> tasks;
+            tasks.push_back({ board,{} });
+
+            while (!tasks.empty() && tasks.size() < preferedTasks)
+            {
+                auto task = tasks.front();
+
+                if (Finished(task.board))
+                    return { task };
+
+                tasks.pop_front();
 
 
-		for (auto direction : Directions)
+                for (auto direction : Directions)
+                {
+                    if (!task.steps.empty() && direction == Opposite(task.steps.back()))
+                        continue;
+
+                    auto target = Move(task.board.emptyPosition, direction);
+                    if (!ValidPosition<rows, cols>(target))
+                        continue;
+
+                    auto steps = task.steps;
+                    steps.push_back(direction);
+                    tasks.push_back({ Moved<false>(task.board,direction),steps });
+                }
+            }
+            return tasks;
+        }
+
+		template<typename Board>
+		std::optional<std::vector<Direction>> Solver0(const Board& board)
 		{
-			if (!task.steps.empty() && direction == Opposite(task.steps.back()))
-				continue;
+			for (int depth = 0;;++depth)
+			{
+				std::vector<Direction> steps_;
+				auto steps = Solve(board, steps_, depth);
+                if (steps)
+                    return steps;
+			}
+		}
 
-			auto target = Move(task.board.emptyPosition, direction);
-			if (!ValidPosition<rows, cols>(target))
-				continue;
+		template<size_t rows, size_t cols>
+		std::optional<std::vector<Direction>> Solver1(const Board<rows,cols>& board)
+		{
+            auto tasks = GenerateTasks(board, 60);
 
-            auto steps = task.steps;
-            steps.push_back(direction);
-            tasks.push_back({ Moved<false>(task.board,direction),steps });
+			for (int depth = 0;; ++depth)
+			{
+				std::mutex mutex;
+				std::optional<std::vector<Direction>> steps;
+
+				Concurrency::parallel_for_each(tasks.begin(), tasks.end(),
+					[depth, &mutex, &steps](auto task)
+				{
+					{
+						std::scoped_lock lock{ mutex };
+						if (steps)
+							return;
+					}
+					auto thisSteps = Solve(task.board, task.steps, depth);
+					if (!thisSteps)
+						return;
+					std::scoped_lock lock{ mutex };
+					if (!steps)
+						steps = thisSteps;
+				});
+
+                if (steps)
+                    return steps;
+			}
+		}
+
+		template<size_t rows, size_t cols>
+		std::optional<std::vector<Direction>> Solver2(const Board<rows,cols>& board)
+		{
+			class Producer
+			{
+			public:
+				Producer(const Board<rows,cols>& board)
+				{
+					auto taskList = GenerateTasks(board, std::thread::hardware_concurrency() * 8);
+					tasks = std::vector<Task<rows, cols>>(taskList.begin(), taskList.end());
+				}
+
+				auto operator()()
+				{
+					auto curIndex = ++index;
+
+					auto depth = curIndex / tasks.size();
+					auto index = curIndex % tasks.size();
+
+					return std::make_tuple(tasks[index].board, tasks[index].steps, (int)depth);
+				}
+
+			private:
+				std::vector<Task<rows, cols>> tasks;
+				std::atomic_int index = 0;
+			};
+
+			class Consumer
+			{
+			public:
+				Consumer(Producer& producer, std::atomic_flag& found, Concurrency::concurrent_queue<std::vector<Direction>>& output)
+					:producer_(producer), found_(found), output_(output) {}
+
+				void operator()()
+				{
+					while (!found_.test())
+					{
+						auto task = producer_();
+						auto steps = Solve(std::get<0>(task), std::get<1>(task), std::get<2>(task));
+						if (!steps)
+							continue;
+						output_.push(*steps);
+						found_.test_and_set();
+						found_.notify_all();
+					}
+				}
+
+			private:
+				Producer& producer_;
+				std::atomic_flag& found_;
+				Concurrency::concurrent_queue<std::vector<Direction>>& output_;
+			};
+
+			class Solver: public std::enable_shared_from_this<Solver>
+			{
+			public:
+				Solver(const Board<rows, cols>& board)
+					:producer(board) {}
+
+				std::optional<std::vector<Direction>> operator()()
+				{
+					for (unsigned int i = 0; i < std::thread::hardware_concurrency(); ++i)
+					{
+						std::thread t{ [self = shared_from_this(), this] { Consumer{ producer,found,output }(); } };
+						t.detach();
+					}
+					found.wait(false);
+					std::vector<Direction> steps;
+					bool got = output.try_pop(steps);
+					assert(got);
+					return steps;
+				}
+
+			private:
+				Producer producer;
+				std::atomic_flag found;// no need to init since C++20
+				Concurrency::concurrent_queue<std::vector<Direction>> output;
+			};
+
+			auto solver = std::make_shared<Solver>(board);
+			return (*solver)();
 		}
     }
-    return tasks;
 }
