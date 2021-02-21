@@ -117,14 +117,23 @@ constexpr std::array<Position<rows, cols>, rows* cols> PossiblePositions = []() 
 template<size_t rows,size_t cols>
 int ManhattanDistance(const Board<rows, cols>& board)
 {
-    return std::accumulate(PossiblePositions<rows, cols>.begin(), PossiblePositions<rows, cols>.end(), 0,
-        [&](int now, auto nowPosition)
+    int cnt = 0;
+    for (const auto& nowPosition : PossiblePositions<rows, cols>)
     {
         if (nowPosition == board.emptyPosition)
-            return now;
+            continue;
         const auto& targetPosition = board.board[nowPosition.index];
-        return now + abs(targetPosition.x - nowPosition.x) + abs(targetPosition.y - nowPosition.y);
-    });
+        cnt += abs(targetPosition.x - nowPosition.x) + abs(targetPosition.y - nowPosition.y);
+    }
+    return cnt;
+    //return std::accumulate(PossiblePositions<rows, cols>.begin(), PossiblePositions<rows, cols>.end(), 0,
+    //    [&](int now, auto nowPosition)
+    //{
+    //    if (nowPosition == board.emptyPosition)
+    //        return now;
+    //    const auto& targetPosition = board.board[nowPosition.index];
+    //    return now + abs(targetPosition.x - nowPosition.x) + abs(targetPosition.y - nowPosition.y);
+    //});
 }
 
 template<size_t rows, size_t cols>
