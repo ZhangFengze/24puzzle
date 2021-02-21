@@ -144,7 +144,7 @@ Board<rows, cols> Moved(const Board<rows, cols>& board, Direction direction)
 template<bool check, size_t rows, size_t cols>
 void Move(Board<rows, cols>& board, Direction direction)
 {
-    auto now = board.emptyPosition;
+    const auto& now = board.emptyPosition;
     auto target = Move(now, direction);
     if constexpr (check)
     {
