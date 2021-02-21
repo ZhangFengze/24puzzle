@@ -19,7 +19,7 @@ std::string ToString(int i)
 }
 
 template<size_t rows, size_t cols>
-std::string ToString(const Board<rows, cols>& board)
+std::string ToString(const typename Solver<rows, cols>::Board& board)
 {
     std::string out;
     for (int y = 0;y < rows;++y)
@@ -27,7 +27,7 @@ std::string ToString(const Board<rows, cols>& board)
         std::string line = "|";
         for (int x = 0;x < cols;++x)
         {
-            int grid = board.board[Position<rows, cols>{ x, y }.index].index;
+            int grid = board.board[Solver<rows, cols>::Position{ x, y }.index].index;
             if (grid == rows * cols - 1)
                 line += "  |";
             else
@@ -38,9 +38,9 @@ std::string ToString(const Board<rows, cols>& board)
     return out;
 }
 
-std::vector<Board<5,5>> boards =
+std::vector<Solver<5,5>::Board> boards =
 {
-    MakeBoard<5,5>
+    Solver<5,5>::MakeBoard
     ({
         0,  1,  2,  3,  4,
         5,  6,  7,  8,  9,
@@ -48,7 +48,7 @@ std::vector<Board<5,5>> boards =
         15, 16, 17, 18, 19,
         20, 21, 22, 23, 24
     }),
-    MakeBoard<5,5>
+    Solver<5,5>::MakeBoard
     ({
         0,  1,  2,  3,  4,
         5,  6,  7,  8,  9,
@@ -56,7 +56,7 @@ std::vector<Board<5,5>> boards =
         15, 16, 17, 18, 19,
         20, 21, 22, 23, 13 
     }),
-    MakeBoard<5,5>
+    Solver<5,5>::MakeBoard
     ({
         0,  1,  2,  3,  4,
         5,  11,  7,  8,  9,
@@ -64,7 +64,7 @@ std::vector<Board<5,5>> boards =
         15, 21, 17, 18, 19,
         20, 16, 22, 23, 13 
     }),
-    MakeBoard<5,5>
+    Solver<5,5>::MakeBoard
     ({
         0,  6,  2,  3,  4,
         5,  1,  7,  8,  9,
@@ -72,7 +72,7 @@ std::vector<Board<5,5>> boards =
         15, 21, 17, 18, 19,
         20, 16, 22, 23, 13 
     }),
-    MakeBoard<5,5>
+    Solver<5,5>::MakeBoard
     ({
         0,  24,  2,  9,  4,
         5,  6,  7,  3,  8,
@@ -85,15 +85,15 @@ std::vector<Board<5,5>> boards =
 int main()
 {
     auto board = boards[4];
-    std::cout << ToString(board) << std::endl;
+	std::cout << ToString<5, 5>(board) << std::endl;
 
-    if (!Solvable(board))
+    if (!Solver<5,5>::Solvable(board))
     {
         std::cout << "not solable";
         return 0;
     }
     std::cout << "sovable" << std::endl;
 
-    Solver2(board);
+    Solver<5,5>::Solver2(board);
     return 0;
 }
