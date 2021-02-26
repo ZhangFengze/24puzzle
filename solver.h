@@ -8,7 +8,7 @@ namespace n_puzzle_solver
         Up, Right, Down, Left
     };
     template<size_t rows, size_t cols>
-	std::optional<std::vector<Direction>> Solve(const std::array<int, rows* cols>&);
+    std::optional<std::vector<Direction>> Solve(const std::array<int, rows* cols>&);
 }
 
 // internals
@@ -105,18 +105,18 @@ namespace n_puzzle_solver
             static bool Solvable(const Board& board)
             {
                 int reverseOrder = 0;
-                for (int i = 0; i < rows * cols; ++i) 
+                for (int i = 0; i < rows * cols; ++i)
                 {
                     if (board.board[i].index == rows * cols - 1)
                         continue;
-                    for (int j = i + 1; j < rows * cols; ++j) 
+                    for (int j = i + 1; j < rows * cols; ++j)
                     {
                         if (board.board[i].index > board.board[j].index)
                             ++reverseOrder;
                     }
                 }
 
-                if constexpr(cols % 2 == 1)
+                if constexpr (cols % 2 == 1)
                     return reverseOrder % 2 == 0;
 
                 return ((rows - 1) - board.emptyPosition.y) % 2 == reverseOrder % 2;
@@ -179,7 +179,7 @@ namespace n_puzzle_solver
             }
 
             static std::optional<std::vector<Direction>>
-            Solve(Board board, std::vector<Direction>& steps, int maxDepth)
+                Solve(Board board, std::vector<Direction>& steps, int maxDepth)
             {
                 int h = ManhattanDistance(board);
                 if (h == 0)
@@ -222,12 +222,9 @@ namespace n_puzzle_solver
                 while (!tasks.empty() && tasks.size() < preferedTasks)
                 {
                     auto task = tasks.front();
-
                     if (Finished(task.board))
                         return { task };
-
                     tasks.pop_front();
-
 
                     for (auto direction : Directions)
                     {
@@ -268,19 +265,19 @@ namespace n_puzzle_solver
 
                     Concurrency::parallel_for_each(tasks.begin(), tasks.end(),
                         [depth, &mutex, &steps](auto task)
-                    {
                         {
-                            std::scoped_lock lock{ mutex };
-                            if (steps)
+                            {
+                                std::scoped_lock lock{ mutex };
+                                if (steps)
+                                    return;
+                            }
+                            auto thisSteps = Solve(task.board, task.steps, depth);
+                            if (!thisSteps)
                                 return;
-                        }
-                        auto thisSteps = Solve(task.board, task.steps, depth);
-                        if (!thisSteps)
-                            return;
-                        std::scoped_lock lock{ mutex };
-                        if (!steps)
-                            steps = thisSteps;
-                    });
+                            std::scoped_lock lock{ mutex };
+                            if (!steps)
+                                steps = thisSteps;
+                        });
 
                     if (steps)
                         return steps;
@@ -339,7 +336,7 @@ namespace n_puzzle_solver
                     Concurrency::concurrent_queue<std::vector<Direction>>& output_;
                 };
 
-                class Solver: public std::enable_shared_from_this<Solver>
+                class Solver : public std::enable_shared_from_this<Solver>
                 {
                 public:
                     Solver(const Board& board)
