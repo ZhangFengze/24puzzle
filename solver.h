@@ -42,9 +42,6 @@ namespace n_puzzle_solver
         {
             int i = int(direction);
             return Direction((i + 2) % 4);
-            //static constexpr std::array<Direction, 4> opposites =
-            //{ Direction::Down,Direction::Left,Direction::Up,Direction::Right };
-            //return opposites[(int)direction];
         }
 
         template<size_t rows, size_t cols>
