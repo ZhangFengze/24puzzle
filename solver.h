@@ -129,23 +129,14 @@ namespace n_puzzle_solver
 
             static int ManhattanDistance(const Board& board)
             {
-                int cnt = 0;
-                for (const auto& nowPosition : PossiblePositions)
+                return std::accumulate(PossiblePositions.begin(), PossiblePositions.end(), 0,
+                    [&](int now, const auto& nowPosition)
                 {
                     if (nowPosition == board.emptyPosition)
-                        continue;
+                        return now;
                     const auto& targetPosition = board.board[nowPosition.index];
-                    cnt += abs(targetPosition.x - nowPosition.x) + abs(targetPosition.y - nowPosition.y);
-                }
-                return cnt;
-                //return std::accumulate(PossiblePositions.begin(), PossiblePositions.end(), 0,
-                //    [&](int now, auto nowPosition)
-                //{
-                //    if (nowPosition == board.emptyPosition)
-                //        return now;
-                //    const auto& targetPosition = board.board[nowPosition.index];
-                //    return now + abs(targetPosition.x - nowPosition.x) + abs(targetPosition.y - nowPosition.y);
-                //});
+                    return now + abs(targetPosition.x - nowPosition.x) + abs(targetPosition.y - nowPosition.y);
+                });
             }
 
             static bool ValidPosition(const Position& position)
