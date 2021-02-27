@@ -132,12 +132,12 @@ namespace n_puzzle_solver
             {
                 return std::accumulate(PossiblePositions.begin(), PossiblePositions.end(), 0,
                     [&](int now, const auto& nowPosition)
-                {
-                    if (nowPosition == board.emptyPosition)
-                        return now;
-                    const auto& targetPosition = board.board[nowPosition.index];
-                    return now + abs(targetPosition.x - nowPosition.x) + abs(targetPosition.y - nowPosition.y);
-                });
+                    {
+                        if (nowPosition == board.emptyPosition)
+                            return now;
+                        const auto& targetPosition = board.board[nowPosition.index];
+                        return now + abs(targetPosition.x - nowPosition.x) + abs(targetPosition.y - nowPosition.y);
+                    });
             }
 
             static bool ValidPosition(const Position& position)
