@@ -356,4 +356,14 @@ namespace n_puzzle_solver
             }
         };
     }
+
+    template<size_t rows, size_t cols>
+    std::optional<std::vector<Direction>> Solve(const std::array<int, rows* cols>& raw)
+    {
+        using _ = impl::Solver<rows, cols>;
+        auto board = _::MakeBoard(raw);
+        if (!_::Solvable(board))
+            return std::nullopt;
+        return _::Solver2(board);
+    }
 }

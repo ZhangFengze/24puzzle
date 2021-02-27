@@ -87,13 +87,15 @@ int main()
     auto board = boards[4];
     std::cout << ToString<5, 5>(board) << std::endl;
 
-    if (!Solver<5, 5>::Solvable(board))
+    auto steps = Solver<5, 5>::Solver2(board);
+    if (!steps)
     {
-        std::cout << "not solable";
-        return 0;
+        std::cout << "not solvable" << std::endl;
     }
-    std::cout << "sovable" << std::endl;
-
-    Solver<5, 5>::Solver2(board);
+    else
+    {
+        for (auto step : *steps)
+            std::cout << ToString(step) << std::endl;
+    }
     return 0;
 }
