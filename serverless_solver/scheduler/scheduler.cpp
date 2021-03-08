@@ -1,8 +1,12 @@
 #include "solver.h"
 #include "../common.h"
 #include "rapidjson/document.h"
+#include "boost/process.hpp"
+#include "boost/asio.hpp"
 
 using namespace n_puzzle_solver::impl;
+namespace bp = boost::process;
+namespace ba = boost::asio;
 
 void ToTasks(const n_puzzle_solver::impl::Solver<5, 5>::Board& board, int prefered)
 {
@@ -20,17 +24,17 @@ void ToTasks(const n_puzzle_solver::impl::Solver<5, 5>::Board& board, int prefer
     }
 }
 
-std::string exec(const char* cmd) {
-    std::array<char, 128> buffer;
-    std::string result;
-    std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(cmd, "r"), _pclose);
-    if (!pipe) {
-        throw std::runtime_error("popen() failed!");
-    }
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-        result += buffer.data();
-    }
-    return result;
+std::future<std::string> AsyncSolve(const Task& task, ba::io_service& ios)
+{
+	rapidjson::Document d;
+	std::string input = ToString(ToJson(task, d.GetAllocator()));
+
+	bp::opstream in;
+	std::future<std::string> out;
+	auto child = bp::child("worker.exe", bp::std_in < in, bp::std_out > out, ios);
+	in << input << std::endl << std::endl;
+    child.detach();
+    return out;
 }
 
 int main()
@@ -38,12 +42,11 @@ int main()
     auto board = Solver<5, 5>::MakeBoard
     ({
         0,  1,  2,  3,  4,
-        5,  6,  7,  8,  9,
-        10, 11, 12, 13, 14,
-        15, 16, 17, 18, 19,
-        20, 21, 22, 23, 24
+        5,  11, 7,  8,  9,
+        10, 6,  12, 24, 14,
+        15, 21, 17, 18, 19,
+        20, 16, 22, 23, 13
         });
-
     std::vector<Task> tasks;
     for (const auto& rawTask : Solver<5, 5>::GenerateTasks(board, 100))
     {
@@ -53,14 +56,28 @@ int main()
         tasks.push_back(t);
     }
 
+    ba::io_service ios;
+
     for (int depth = 0;;++depth)
     {
+        std::vector<std::future<std::string>> results;
         for (auto task : tasks)
         {
             task.depth = depth;
-            rapidjson::Document d;
-            std::string input = ToString(ToJson(task, d.GetAllocator()));
-            // TODO
+            results.push_back(AsyncSolve(task, ios));
+        }
+
+        ios.restart();
+        ios.run();
+
+        for (auto& _ : results)
+        {
+            auto result = _.get();
+            if (result != "null")
+            {
+                std::cout << result;
+                return 0;
+            }
         }
     }
 }
