@@ -1,27 +1,22 @@
 #include "solver.h"
 #include "../common.h"
-#include "rapidjson/document.h"
-#include "rapidjson/istreamwrapper.h"
 #include <iostream>
 
 int main()
 {
-    rapidjson::Document inDoc;
-    rapidjson::IStreamWrapper in(std::cin);
-    inDoc.ParseStream<rapidjson::kParseStopWhenDoneFlag>(in);
+    std::string in;
+    std::copy(std::istream_iterator<char>(std::cin), std::istream_iterator<char>(), std::back_inserter(in));
 
-    auto task = ToTask(inDoc);
+    auto task = ToTask(in);
     auto board = n_puzzle_solver::impl::Solver<5, 5>::MakeBoard(task.board);
     auto tempSteps = Map(task.steps, [](int dir) {return n_puzzle_solver::Direction(dir); });
     auto steps = n_puzzle_solver::impl::Solver<5, 5>::Solve(board, tempSteps, task.depth);
 
     if (!steps)
     {
-        std::cout << ToString(rapidjson::Value());
+        std::cout << "null";
         return 0;
     }
-    rapidjson::Document outDoc;
-    auto out = ToJson(Map(*steps, [](const auto& dir) {return (int)dir; }), outDoc.GetAllocator());
-    std::cout << ToString(out);
+    std::cout << ToJson(Map(*steps, [](const auto& dir) {return (int)dir; }));
     return 0;
 }

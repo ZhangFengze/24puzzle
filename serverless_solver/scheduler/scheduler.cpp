@@ -2,7 +2,6 @@
 
 #include "solver.h"
 #include "../common.h"
-#include "rapidjson/document.h"
 #include "boost/process.hpp"
 #include "boost/asio.hpp"
 #include "boost/asio/use_future.hpp"
@@ -123,8 +122,7 @@ struct async_out_future : ::boost::process::detail::windows::handler_base_ext,
 
 boost::shared_future<std::string> AsyncSolve(const Task& task, ba::io_service& ios)
 {
-    rapidjson::Document d;
-    std::string input = ToString(ToJson(task, d.GetAllocator()));
+    std::string input = ToJson(task);
 
     bp::opstream in;
     boost::shared_future<std::string> out;

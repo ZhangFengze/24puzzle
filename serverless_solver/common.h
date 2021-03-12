@@ -6,37 +6,40 @@
 #include <array>
 #include <algorithm>
 
-inline std::string ToString(const rapidjson::Value& doc)
+namespace impl
 {
-    rapidjson::StringBuffer sb;
-    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
-    doc.Accept(writer);
-    return sb.GetString();
-}
+	inline std::string ToString(const rapidjson::Value& doc)
+	{
+		rapidjson::StringBuffer sb;
+		rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
+		doc.Accept(writer);
+		return sb.GetString();
+	}
 
-template<typename Container, typename Allocator>
-rapidjson::Value ToJson(const Container& c, Allocator& alloc)
-{
-    rapidjson::Value v;
-    v.SetArray();
-    for (auto i : c)
-        v.PushBack(i, alloc);
-    return v;
-}
+	template<typename Container, typename Allocator>
+	rapidjson::Value ToJson(const Container& c, Allocator& alloc)
+	{
+		rapidjson::Value v;
+		v.SetArray();
+		for (auto i : c)
+			v.PushBack(i, alloc);
+		return v;
+	}
 
-template<typename T>
-void FromJson(std::vector<T>& to, const rapidjson::Value& from)
-{
-    for (const auto& v : from.GetArray())
-        to.push_back(v.Get<T>());
-}
+	template<typename T>
+	void FromJson(std::vector<T>& to, const rapidjson::Value& from)
+	{
+		for (const auto& v : from.GetArray())
+			to.push_back(v.Get<T>());
+	}
 
-template<typename T, size_t size>
-void FromJson(std::array<T, size>& to, const rapidjson::Value& from)
-{
-    assert(from.GetArray().Size() == size);
-    for (size_t i = 0;i < size;++i)
-        to[i] = from.GetArray()[i].Get<T>();
+	template<typename T, size_t size>
+	void FromJson(std::array<T, size>& to, const rapidjson::Value& from)
+	{
+		assert(from.GetArray().Size() == size);
+		for (size_t i = 0;i < size;++i)
+			to[i] = from.GetArray()[i].Get<T>();
+	}
 }
 
 template<typename T, typename Func>
@@ -64,22 +67,41 @@ struct Task
     int depth = 0;
 };
 
-inline Task ToTask(const rapidjson::Value& json)
+inline Task ToTask(const std::string& json)
 {
+    using namespace impl;
+
+    rapidjson::Document doc;
+    doc.Parse<rapidjson::kParseStopWhenDoneFlag>(json.c_str());
+
     Task t;
-    FromJson(t.board, json["board"]);
-    FromJson(t.steps, json["steps"]);
-    t.depth = json["depth"].GetInt();
+    FromJson(t.board, doc["board"]);
+    FromJson(t.steps, doc["steps"]);
+    t.depth = doc["depth"].GetInt();
     return t;
 }
 
-template<typename Allocator>
-rapidjson::Value ToJson(const Task& task, Allocator& alloc)
+inline std::string ToJson(const Task& task)
 {
-    rapidjson::Value v;
+    using namespace impl;
+
+    rapidjson::Document v;
+    auto& alloc = v.GetAllocator();
+
     v.SetObject();
     v.AddMember("board", ToJson(task.board, alloc), alloc);
     v.AddMember("steps", ToJson(task.steps, alloc), alloc);
     v.AddMember("depth", task.depth, alloc);
-    return v;
+
+    return ToString(v);
+}
+
+template<typename Container>
+std::string ToJson(const Container& c)
+{
+	rapidjson::Document doc;
+	doc.SetArray();
+    for (auto i : c)
+        doc.PushBack(i, doc.GetAllocator());
+    return impl::ToString(doc);
 }
