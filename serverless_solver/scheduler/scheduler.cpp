@@ -1,6 +1,7 @@
 #define BOOST_THREAD_PROVIDES_FUTURE_CONTINUATION
 
 #include "solver.h"
+#include "async_http_client.h"
 #include "../common.h"
 #include "boost/process.hpp"
 #include "boost/asio.hpp"
@@ -120,7 +121,8 @@ struct async_out_future : ::boost::process::detail::windows::handler_base_ext,
     }
 };
 
-boost::shared_future<std::string> AsyncSolve(const Task& task, ba::io_service& ios)
+boost::shared_future<std::string>
+AsyncSolve_Local(const Task& task, ba::io_service& ios)
 {
     std::string input = ToJson(task);
 
@@ -130,6 +132,11 @@ boost::shared_future<std::string> AsyncSolve(const Task& task, ba::io_service& i
     in << input << std::endl << std::endl;
     child.detach();
     return out;
+}
+
+auto AsyncSolve_Http(const Task& task, ba::io_service& ios)
+{
+    return AsyncHttpRequest(ios, "localhost", "8088", "/", ToJson(task));
 }
 
 int main()
@@ -148,25 +155,26 @@ int main()
 
     std::atomic<std::shared_ptr<std::string>> result;
 
-    std::function<void()> ContinuouslyAsyncSolve;
-    ContinuouslyAsyncSolve= [&]()
+    std::function<void(const Task&)> ContinuouslyAsyncSolve;
+    ContinuouslyAsyncSolve= [&](const Task& task)
 	{
-		AsyncSolve(producer(), ios).then(
-			[&](boost::shared_future<std::string> f)
+		AsyncSolve_Http(task, ios).then(
+			[&,task](auto f)
 		{
-            auto output = f.get();
-            if (output != "null")
-            {
-                result.store(std::make_shared<std::string>(output));
-                ios.stop();
-                return;
-            }
-			ContinuouslyAsyncSolve();
+            auto _ = f.get();
+            auto output = std::get_if<std::string>(&_);
+            if (!output || *output == "error")
+                return ContinuouslyAsyncSolve(task);
+            else if (*output == "null")
+                return ContinuouslyAsyncSolve(producer());
+
+			result.store(std::make_shared<std::string>(*output));
+			ios.stop();
 		});
 	};
 
     for (int i = 0, concurrency = 12; i < concurrency; ++i)
-        ContinuouslyAsyncSolve();
+        ContinuouslyAsyncSolve(producer());
 
     while (!result.load())
         ios.run();
