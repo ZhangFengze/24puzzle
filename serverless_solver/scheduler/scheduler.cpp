@@ -63,7 +63,7 @@ struct async_out_future : ::boost::process::detail::windows::handler_base_ext,
     }
 
 
-    async_out_future(boost::shared_future<Type>& fut)
+    async_out_future(boost::unique_future<Type>& fut)
     {
         fut = promise->get_future();
     }
@@ -121,13 +121,13 @@ struct async_out_future : ::boost::process::detail::windows::handler_base_ext,
     }
 };
 
-boost::shared_future<std::string>
+boost::unique_future<std::string>
 AsyncSolve_Local(const Task& task, ba::io_service& ios)
 {
     std::string input = ToJson(task);
 
     bp::opstream in;
-    boost::shared_future<std::string> out;
+    boost::unique_future<std::string> out;
     auto child = bp::child("worker.exe", bp::std_in < in, async_out_future<1, -1, std::string>(out), ios);
     in << input << std::endl << std::endl;
     child.detach();
