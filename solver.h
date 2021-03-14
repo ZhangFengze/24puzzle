@@ -29,8 +29,11 @@ namespace n_puzzle_solver
 #include <mutex>
 #include <memory>
 #include <future>
+
+#ifdef WIN32
 #include <ppl.h>
 #include <concurrent_queue.h>
+#endif
 
 namespace n_puzzle_solver
 {
@@ -243,6 +246,7 @@ namespace n_puzzle_solver
                 }
             }
 
+#ifdef WIN32
             static std::optional<std::vector<Direction>> Solver1(const Board& board)
             {
                 auto tasks = GenerateTasks(board, 60);
@@ -354,6 +358,7 @@ namespace n_puzzle_solver
                 auto solver = std::make_shared<Solver>(board);
                 return (*solver)();
             }
+#endif
         };
     }
 
