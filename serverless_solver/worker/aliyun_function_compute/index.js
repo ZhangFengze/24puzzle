@@ -19,6 +19,6 @@ exports.handler = (req, resp, context) => {
                 }
                 resp.send(stdout)
             })
-        child.stdin.end(received)
+        child.stdin.end(body)
     });
 }
