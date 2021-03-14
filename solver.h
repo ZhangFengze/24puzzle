@@ -96,9 +96,9 @@ namespace n_puzzle_solver
                 return MakeBoard(board);
             }
 
+            static constexpr auto finished = FinishedBoard();
             static constexpr bool Finished(const Board& board)
             {
-                static constexpr auto finished = FinishedBoard();
                 return board == finished;
             }
 
