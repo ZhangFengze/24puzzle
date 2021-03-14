@@ -1,6 +1,7 @@
 #pragma once
 #include <optional>
 #include <vector>
+#include <array>
 
 namespace n_puzzle_solver
 {
@@ -14,7 +15,6 @@ namespace n_puzzle_solver
 
 // internals
 
-#include <array>
 #include <list>
 #include <vector>
 #include <numeric>
