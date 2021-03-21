@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(24puzzle)
+project(normal_solver)
 
 aux_source_directory(. source)
 add_executable(${PROJECT_NAME} ${source})
