@@ -146,12 +146,12 @@ int main()
 
     auto board = Solver<5, 5>::MakeBoard
     ({
-        0,  1,  2,  3,  4,
-        5,  11, 7,  8,  9,
-        10, 6,  12, 24, 14,
-        15, 21, 17, 18, 19,
-        20, 16, 22, 23, 13
-        });
+        0,  24, 2,  9,  4,
+        5,  6,  7,  3,  8,
+        10, 11, 12, 18, 14,
+        15, 21, 22, 13, 19,
+        20, 16, 23, 17, 1
+		});
     Producer producer(board, 100, 60);
 
     std::atomic<std::shared_ptr<std::string>> result;
