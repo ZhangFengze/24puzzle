@@ -19,13 +19,13 @@ class Producer
 public:
     Producer(const n_puzzle_solver::impl::Solver<5, 5>::Board& board, int preferedCount, int startDepth)
     {
-		for (const auto& rawTask : Solver<5, 5>::GenerateTasks(board, preferedCount))
-		{
-			SemiTask t;
-			t.board = Map(rawTask.board.board, [](const auto& position) {return (int)position.index;});
-			t.steps = Map(rawTask.steps, [](const auto& dir) {return (int)dir;});
+        for (const auto& rawTask : Solver<5, 5>::GenerateTasks(board, preferedCount))
+        {
+            SemiTask t;
+            t.board = Map(rawTask.board.board, [](const auto& position) {return (int)position.index;});
+            t.steps = Map(rawTask.steps, [](const auto& dir) {return (int)dir;});
             tasks_.push_back(t);
-		}
+        }
         index = startDepth * tasks_.size();
     }
 
@@ -42,8 +42,8 @@ public:
 private:
     struct SemiTask
     {
-		std::array<int, 25> board;
-		std::vector<int> steps;
+        std::array<int, 25> board;
+        std::vector<int> steps;
     };
     std::vector<SemiTask> tasks_;
     std::atomic_int index = 0;
@@ -151,28 +151,28 @@ int main()
         10, 11, 12, 18, 14,
         15, 21, 22, 13, 19,
         20, 16, 23, 17, 1
-		});
+        });
     Producer producer(board, 100, 60);
 
     std::atomic<std::shared_ptr<std::string>> result;
 
     std::function<void(const Task&)> ContinuouslyAsyncSolve;
-    ContinuouslyAsyncSolve= [&](const Task& task)
-	{
-		AsyncSolve_Http(task, ios).then(
-			[&,task](auto f)
-		{
-            auto _ = f.get();
-            auto output = std::get_if<std::string>(&_);
-            if (!output || *output == "error")
-                return ContinuouslyAsyncSolve(task);
-            else if (*output == "null")
-                return ContinuouslyAsyncSolve(producer());
+    ContinuouslyAsyncSolve = [&](const Task& task)
+    {
+        AsyncSolve_Http(task, ios).then(
+            [&, task](auto f)
+            {
+                auto _ = f.get();
+                auto output = std::get_if<std::string>(&_);
+                if (!output || *output == "error")
+                    return ContinuouslyAsyncSolve(task);
+                else if (*output == "null")
+                    return ContinuouslyAsyncSolve(producer());
 
-			result.store(std::make_shared<std::string>(*output));
-			ios.stop();
-		});
-	};
+                result.store(std::make_shared<std::string>(*output));
+                ios.stop();
+            });
+    };
 
     for (int i = 0, concurrency = 12; i < concurrency; ++i)
         ContinuouslyAsyncSolve(producer());
