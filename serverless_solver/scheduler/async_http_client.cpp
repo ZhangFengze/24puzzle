@@ -26,7 +26,7 @@ public:
             const std::string& body)
     {
         req_.version(11);
-        req_.method(boost::beast::http::verb::get);
+        req_.method(boost::beast::http::verb::post);
         req_.target(target);
         req_.set(boost::beast::http::field::host, host);
         req_.body() = body;
