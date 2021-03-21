@@ -17,7 +17,7 @@ namespace ba = boost::asio;
 class Producer
 {
 public:
-    Producer(const n_puzzle_solver::impl::Solver<5, 5>::Board& board, int preferedCount)
+    Producer(const n_puzzle_solver::impl::Solver<5, 5>::Board& board, int preferedCount, int startDepth)
     {
 		for (const auto& rawTask : Solver<5, 5>::GenerateTasks(board, preferedCount))
 		{
@@ -26,6 +26,7 @@ public:
 			t.steps = Map(rawTask.steps, [](const auto& dir) {return (int)dir;});
             tasks_.push_back(t);
 		}
+        index = startDepth * tasks_.size();
     }
 
     auto operator()()
@@ -151,7 +152,7 @@ int main()
         15, 21, 17, 18, 19,
         20, 16, 22, 23, 13
         });
-    Producer producer(board, 100);
+    Producer producer(board, 100, 60);
 
     std::atomic<std::shared_ptr<std::string>> result;
 
