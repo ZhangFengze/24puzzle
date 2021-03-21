@@ -2,7 +2,7 @@
 
 #include "solver.h"
 #include "async_http_client.h"
-#include "../common.h"
+#include "adapter.h"
 #include "boost/process.hpp"
 #include "boost/asio.hpp"
 #include "boost/asio/use_future.hpp"
@@ -137,7 +137,7 @@ AsyncSolve_Local(const Task& task, ba::io_service& ios)
 
 auto AsyncSolve_Http(const Task& task, ba::io_service& ios)
 {
-    return AsyncHttpRequest(ios, "localhost", "8088", "/", ToJson(task));
+    return AsyncHttpRequest(ios, "1045481767726147.cn-beijing.fc.aliyuncs.com", "80", "/2016-08-15/proxy/puzzle/test/", ToJson(task));
 }
 
 int main()
@@ -152,7 +152,7 @@ int main()
         15, 21, 22, 13, 19,
         20, 16, 23, 17, 1
         });
-    Producer producer(board, 100, 60);
+    Producer producer(board, 290, 60);
 
     std::atomic<std::shared_ptr<std::string>> result;
 
