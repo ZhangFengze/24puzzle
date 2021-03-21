@@ -51,8 +51,8 @@ std::vector<Solver<5, 5>::Board> boards =
 
 int main()
 {
-    auto board = boards[4];
-    auto steps = Solver<5, 5>::Solver2(board);
+    auto board = boards[3];
+    auto steps = Solver<5, 5>::Solver0(board);
     if (!steps)
         std::cout<<"null"<<std::endl;
     else
