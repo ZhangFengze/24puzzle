@@ -1,42 +1,9 @@
 #include "solver.h"
+#include "adapter.h"
 #include <string>
 
 using namespace n_puzzle_solver;
 using namespace n_puzzle_solver::impl;
-
-std::string ToString(Direction d)
-{
-    static const std::array<std::string, 4> strings =
-    { "up","right","down","left" };
-    return strings[(int)d];
-}
-
-std::string ToString(int i)
-{
-    char buf[4];
-    snprintf(buf, sizeof buf, "%2d", i);
-    return buf;
-}
-
-template<size_t rows, size_t cols>
-std::string ToString(const typename Solver<rows, cols>::Board& board)
-{
-    std::string out;
-    for (int y = 0;y < rows;++y)
-    {
-        std::string line = "|";
-        for (int x = 0;x < cols;++x)
-        {
-            int grid = board.board[Solver<rows, cols>::Position{ x, y }.index].index;
-            if (grid == rows * cols - 1)
-                line += "  |";
-            else
-                line += ToString(grid) + "|";
-        }
-        out += line + "\n";
-    }
-    return out;
-}
 
 std::vector<Solver<5, 5>::Board> boards =
 {
@@ -85,17 +52,10 @@ std::vector<Solver<5, 5>::Board> boards =
 int main()
 {
     auto board = boards[4];
-    std::cout << ToString<5, 5>(board) << std::endl;
-
     auto steps = Solver<5, 5>::Solver2(board);
     if (!steps)
-    {
-        std::cout << "not solvable" << std::endl;
-    }
+        std::cout<<"null"<<std::endl;
     else
-    {
-        for (auto step : *steps)
-            std::cout << ToString(step) << std::endl;
-    }
+        std::cout << ToJson(Map(*steps, [](const auto& dir) {return (int)dir; }));
     return 0;
 }
