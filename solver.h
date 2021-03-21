@@ -224,18 +224,6 @@ namespace n_puzzle_solver
                 }
                 return tasks;
             }
-
-            static std::optional<std::vector<Direction>> Solver0(const Board& board)
-            {
-                for (int depth = 0;;++depth)
-                {
-                    std::vector<Direction> steps_;
-                    auto steps = Solve(board, steps_, depth);
-                    if (steps)
-                        return steps;
-                }
-            }
-
         };
     }
 
