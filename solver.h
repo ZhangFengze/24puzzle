@@ -23,17 +23,7 @@ namespace n_puzzle_solver
 #include <ranges>
 #include <iostream>
 #include <algorithm>
-#include <execution>
-#include <thread>
-#include <atomic>
-#include <mutex>
 #include <memory>
-#include <future>
-
-#ifdef WIN32
-#include <ppl.h>
-#include <concurrent_queue.h>
-#endif
 
 namespace n_puzzle_solver
 {
@@ -246,119 +236,6 @@ namespace n_puzzle_solver
                 }
             }
 
-#ifdef WIN32
-            static std::optional<std::vector<Direction>> Solver1(const Board& board)
-            {
-                auto tasks = GenerateTasks(board, 60);
-
-                for (int depth = 0;; ++depth)
-                {
-                    std::mutex mutex;
-                    std::optional<std::vector<Direction>> steps;
-
-                    Concurrency::parallel_for_each(tasks.begin(), tasks.end(),
-                        [depth, &mutex, &steps](auto task)
-                        {
-                            {
-                                std::scoped_lock lock{ mutex };
-                                if (steps)
-                                    return;
-                            }
-                            auto thisSteps = Solve(task.board, task.steps, depth);
-                            if (!thisSteps)
-                                return;
-                            std::scoped_lock lock{ mutex };
-                            if (!steps)
-                                steps = thisSteps;
-                        });
-
-                    if (steps)
-                        return steps;
-                }
-            }
-
-            static std::optional<std::vector<Direction>> Solver2(const Board& board)
-            {
-                class Producer
-                {
-                public:
-                    Producer(const Board& board)
-                    {
-                        auto taskList = GenerateTasks(board, std::thread::hardware_concurrency() * 8);
-                        tasks = std::vector<Task>(taskList.begin(), taskList.end());
-                    }
-
-                    auto operator()()
-                    {
-                        auto curIndex = ++index;
-
-                        auto depth = curIndex / tasks.size();
-                        auto index = curIndex % tasks.size();
-
-                        return std::make_tuple(tasks[index].board, tasks[index].steps, (int)depth);
-                    }
-
-                private:
-                    std::vector<Task> tasks;
-                    std::atomic_int index = 0;
-                };
-
-                class Consumer
-                {
-                public:
-                    Consumer(Producer& producer, std::atomic_flag& found, Concurrency::concurrent_queue<std::vector<Direction>>& output)
-                        :producer_(producer), found_(found), output_(output) {}
-
-                    void operator()()
-                    {
-                        while (!found_.test())
-                        {
-                            auto task = producer_();
-                            auto steps = Solve(std::get<0>(task), std::get<1>(task), std::get<2>(task));
-                            if (!steps)
-                                continue;
-                            output_.push(*steps);
-                            found_.test_and_set();
-                            found_.notify_all();
-                        }
-                    }
-
-                private:
-                    Producer& producer_;
-                    std::atomic_flag& found_;
-                    Concurrency::concurrent_queue<std::vector<Direction>>& output_;
-                };
-
-                class Solver : public std::enable_shared_from_this<Solver>
-                {
-                public:
-                    Solver(const Board& board)
-                        :producer(board) {}
-
-                    std::optional<std::vector<Direction>> operator()()
-                    {
-                        for (unsigned int i = 0; i < std::thread::hardware_concurrency(); ++i)
-                        {
-                            std::thread t{ [self = shared_from_this(), this] { Consumer{ producer,found,output }(); } };
-                            t.detach();
-                        }
-                        found.wait(false);
-                        std::vector<Direction> steps;
-                        bool got = output.try_pop(steps);
-                        assert(got);
-                        return steps;
-                    }
-
-                private:
-                    Producer producer;
-                    std::atomic_flag found;// no need to init since C++20
-                    Concurrency::concurrent_queue<std::vector<Direction>> output;
-                };
-
-                auto solver = std::make_shared<Solver>(board);
-                return (*solver)();
-            }
-#endif
         };
     }
 
