@@ -1,7 +1,7 @@
 #include "solver.h"
 #include "adapter.h"
-#include <ppl.h>
 #include <concurrent_queue.h>
+#include <thread>
 #include <string>
 #include <atomic>
 #include <vector>
