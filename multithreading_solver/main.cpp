@@ -1,9 +1,9 @@
 #include "solver.h"
 #include "adapter.h"
-#include <concurrent_queue.h>
 #include <thread>
 #include <string>
 #include <atomic>
+#include <memory>
 #include <vector>
 #include <tuple>
 #include <iostream>
@@ -38,7 +38,7 @@ private:
 class Consumer
 {
 public:
-    Consumer(Producer& producer, std::atomic_flag& found, Concurrency::concurrent_queue<std::vector<Direction>>& output)
+    Consumer(Producer& producer, std::atomic_flag& found, std::atomic<std::shared_ptr<std::vector<Direction>>>& output)
         :producer_(producer), found_(found), output_(output) {}
 
     void operator()()
@@ -49,7 +49,7 @@ public:
             auto steps = Solver<5,5>::Solve(std::get<0>(task), std::get<1>(task), std::get<2>(task));
             if (!steps)
                 continue;
-            output_.push(*steps);
+            output_.store(std::make_shared<std::vector<Direction>>(*steps));
             found_.test_and_set();
             found_.notify_all();
         }
@@ -58,7 +58,7 @@ public:
 private:
     Producer& producer_;
     std::atomic_flag& found_;
-    Concurrency::concurrent_queue<std::vector<Direction>>& output_;
+    std::atomic<std::shared_ptr<std::vector<Direction>>>& output_;
 };
 
 class _Solver : public std::enable_shared_from_this<_Solver>
@@ -75,16 +75,13 @@ public:
             t.detach();
         }
         found.wait(false);
-        std::vector<Direction> steps;
-        bool got = output.try_pop(steps);
-        assert(got);
-        return steps;
+        return *output.load();
     }
 
 private:
     Producer producer;
     std::atomic_flag found;// no need to init since C++20
-    Concurrency::concurrent_queue<std::vector<Direction>> output;
+    std::atomic<std::shared_ptr<std::vector<Direction>>> output;
 };
 
 std::optional<std::vector<Direction>> Solve(const Solver<5,5>::Board& board)
