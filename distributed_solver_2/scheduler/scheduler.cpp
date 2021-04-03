@@ -10,7 +10,7 @@
 using namespace n_puzzle_solver::impl;
 namespace ba = boost::asio;
 
-auto AsyncSolve_Http(const Task& task, ba::io_service& ios)
+auto AsyncSolve(const Task& task, ba::io_service& ios)
 {
     return AsyncHttpRequest(ios, "1045481767726147.cn-beijing.fc.aliyuncs.com", "80", "/2016-08-15/proxy/puzzle/test/", ToJson(task));
 }
@@ -39,7 +39,7 @@ int main()
     std::string result;
     for (const auto& task : tasks)
     {
-        AsyncSolve_Http(task, ios).then(
+        AsyncSolve(task, ios).then(
             [&, task](auto f)
             {
                 auto _ = f.get();
