@@ -1,4 +1,3 @@
-#include "entrypoint.h"
 #include "handler.h"
 #include "solver.h"
 #include "adapter.h"
@@ -22,6 +21,7 @@ public:
 };
 }}}
 
+#include "entrypoint.h"
 using namespace Aliyun::FC::Handlers;
 void SetInvokeAndInitHander()
 {
