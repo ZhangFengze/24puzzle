@@ -22,6 +22,7 @@ public:
                     {
                         auto result = ToJson(Map(*steps, [](const auto& dir) {return (int)dir; }));
                         response.send(Pistache::Http::Code::Ok, result);
+                        return;
                     }
                 }
             }
