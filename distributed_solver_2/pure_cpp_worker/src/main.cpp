@@ -17,7 +17,7 @@ public:
                 for(int depth = task.depth;;++depth)
                 {
                     auto tempSteps = historySteps;
-                    auto steps = n_puzzle_solver::impl::Solver<5, 5>::Solve(board, tempSteps, task.depth);
+                    auto steps = n_puzzle_solver::impl::Solver<5, 5>::Solve(board, tempSteps, depth);
                     if(steps)
                     {
                         auto result = ToJson(Map(*steps, [](const auto& dir) {return (int)dir; }));
