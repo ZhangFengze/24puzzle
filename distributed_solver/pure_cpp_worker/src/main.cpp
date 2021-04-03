@@ -16,7 +16,7 @@ public:
                 auto tempSteps = Map(task.steps, [](int dir) {return n_puzzle_solver::Direction(dir); });
                 auto steps = n_puzzle_solver::impl::Solver<5, 5>::Solve(board, tempSteps, task.depth);
                 auto result = steps? ToJson(Map(*steps, [](const auto& dir) {return (int)dir; })) : "null";
-                response.send(Http::Code::Ok, EchoHttpHandler::mInitHandler + result);
+                response.send(Pistache::Http::Code::Ok, result);
             }
 };
 }}}
