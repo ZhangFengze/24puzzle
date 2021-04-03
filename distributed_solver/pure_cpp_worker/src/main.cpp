@@ -18,6 +18,7 @@ public:
                 auto result = steps? ToJson(Map(*steps, [](const auto& dir) {return (int)dir; })) : "null";
                 response.send(Pistache::Http::Code::Ok, result);
             }
+   void OnInitialize(const FcContext& context) override{}
 };
 }}}
 
