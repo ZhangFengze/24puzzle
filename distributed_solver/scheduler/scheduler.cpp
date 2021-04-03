@@ -1,7 +1,7 @@
 #define BOOST_THREAD_PROVIDES_FUTURE_CONTINUATION
 
 #include "solver.h"
-#include "async_http_client.h"
+#include "async_http_client.hpp"
 #include "adapter.h"
 #include "boost/asio.hpp"
 #include "boost/asio/use_future.hpp"
