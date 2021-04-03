@@ -60,6 +60,15 @@ auto Map(const std::array<T, size>& in, Func func)
     return out;
 }
 
+template<typename T, typename Func>
+auto Map(const std::list<T>& in, Func func)
+{
+    using ResultType = std::list<std::invoke_result_t<Func, T>>;
+    ResultType out;
+    std::transform(std::begin(in), std::end(in), std::back_inserter(out), func);
+    return out;
+}
+
 struct Task
 {
     std::array<int, 25> board;
