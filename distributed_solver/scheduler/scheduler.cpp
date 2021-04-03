@@ -154,7 +154,7 @@ int main()
         });
     Producer producer(board, 290, 60);
 
-    std::atomic<std::shared_ptr<std::string>> result;
+    std::string result;
 
     std::function<void(const Task&)> ContinuouslyAsyncSolve;
     ContinuouslyAsyncSolve = [&](const Task& task)
@@ -169,7 +169,7 @@ int main()
                 else if (*output == "null")
                     return ContinuouslyAsyncSolve(producer());
 
-                result.store(std::make_shared<std::string>(*output));
+                result = *output;
                 ios.stop();
             });
     };
@@ -177,7 +177,6 @@ int main()
     for (int i = 0, concurrency = 12; i < concurrency; ++i)
         ContinuouslyAsyncSolve(producer());
 
-    while (!result.load())
-        ios.run();
-    std::cout << *result.load();
+	ios.run();
+    std::cout << result;
 }
