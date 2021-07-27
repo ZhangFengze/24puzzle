@@ -87,6 +87,6 @@ int main()
     for (int i = 0, concurrency = 12; i < concurrency; ++i)
         ContinuouslyAsyncSolve(producer());
 
-	ios.run();
+    ios.run();
     std::cout << result;
 }

@@ -30,11 +30,11 @@ int main()
     auto rawTasks = Solver<5, 5>::GenerateTasks(board, 290);
     auto tasks = Map(rawTasks,
         [](auto rawTask)
-    {
-        auto board = Map(rawTask.board.board, [](const auto& position) {return (int)position.index; });
-        auto steps = Map(rawTask.steps, [](const auto& dir) {return (int)dir; });
-        return Task{ board, steps, 0 };
-    });
+        {
+            auto board = Map(rawTask.board.board, [](const auto& position) {return (int)position.index; });
+            auto steps = Map(rawTask.steps, [](const auto& dir) {return (int)dir; });
+            return Task{ board, steps, 0 };
+        });
 
     std::string result;
     for (const auto& task : tasks)
@@ -54,6 +54,6 @@ int main()
             });
     }
 
-	ios.run();
-	std::cout << result;
+    ios.run();
+    std::cout << result;
 }

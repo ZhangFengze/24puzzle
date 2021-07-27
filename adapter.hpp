@@ -10,38 +10,38 @@
 
 namespace impl
 {
-	inline std::string ToString(const rapidjson::Value& doc)
-	{
-		rapidjson::StringBuffer sb;
-		rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
-		doc.Accept(writer);
-		return sb.GetString();
-	}
+    inline std::string ToString(const rapidjson::Value& doc)
+    {
+        rapidjson::StringBuffer sb;
+        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
+        doc.Accept(writer);
+        return sb.GetString();
+    }
 
-	template<typename Container, typename Allocator>
-	rapidjson::Value ToJson(const Container& c, Allocator& alloc)
-	{
-		rapidjson::Value v;
-		v.SetArray();
-		for (auto i : c)
-			v.PushBack(i, alloc);
-		return v;
-	}
+    template<typename Container, typename Allocator>
+    rapidjson::Value ToJson(const Container& c, Allocator& alloc)
+    {
+        rapidjson::Value v;
+        v.SetArray();
+        for (auto i : c)
+            v.PushBack(i, alloc);
+        return v;
+    }
 
-	template<typename T>
-	void FromJson(std::vector<T>& to, const rapidjson::Value& from)
-	{
-		for (const auto& v : from.GetArray())
-			to.push_back(v.Get<T>());
-	}
+    template<typename T>
+    void FromJson(std::vector<T>& to, const rapidjson::Value& from)
+    {
+        for (const auto& v : from.GetArray())
+            to.push_back(v.Get<T>());
+    }
 
-	template<typename T, size_t size>
-	void FromJson(std::array<T, size>& to, const rapidjson::Value& from)
-	{
-		assert(from.GetArray().Size() == size);
-		for (size_t i = 0;i < size;++i)
-			to[i] = from.GetArray()[i].Get<T>();
-	}
+    template<typename T, size_t size>
+    void FromJson(std::array<T, size>& to, const rapidjson::Value& from)
+    {
+        assert(from.GetArray().Size() == size);
+        for (size_t i = 0;i < size;++i)
+            to[i] = from.GetArray()[i].Get<T>();
+    }
 }
 
 template<typename T, typename Func>
@@ -110,8 +110,8 @@ inline std::string ToJson(const Task& task)
 template<typename Container>
 std::string ToJson(const Container& c)
 {
-	rapidjson::Document doc;
-	doc.SetArray();
+    rapidjson::Document doc;
+    doc.SetArray();
     for (auto i : c)
         doc.PushBack(i, doc.GetAllocator());
     return impl::ToString(doc);

@@ -14,10 +14,10 @@ using namespace n_puzzle_solver::impl;
 class Producer
 {
 public:
-    Producer(const Solver<5,5>::Board& board)
+    Producer(const Solver<5, 5>::Board& board)
     {
-        auto taskList = Solver<5,5>::GenerateTasks(board, std::thread::hardware_concurrency() * 8);
-        tasks = std::vector<Solver<5,5>::Task>(taskList.begin(), taskList.end());
+        auto taskList = Solver<5, 5>::GenerateTasks(board, std::thread::hardware_concurrency() * 8);
+        tasks = std::vector<Solver<5, 5>::Task>(taskList.begin(), taskList.end());
     }
 
     auto operator()()
@@ -31,7 +31,7 @@ public:
     }
 
 private:
-    std::vector<Solver<5,5>::Task> tasks;
+    std::vector<Solver<5, 5>::Task> tasks;
     std::atomic_int index = 0;
 };
 
@@ -46,7 +46,7 @@ public:
         while (!found_.test())
         {
             auto task = producer_();
-            auto steps = Solver<5,5>::Solve(std::get<0>(task), std::get<1>(task), std::get<2>(task));
+            auto steps = Solver<5, 5>::Solve(std::get<0>(task), std::get<1>(task), std::get<2>(task));
             if (!steps)
                 continue;
             output_.store(std::make_shared<std::vector<Direction>>(*steps));
@@ -64,7 +64,7 @@ private:
 class _Solver : public std::enable_shared_from_this<_Solver>
 {
 public:
-    _Solver(const Solver<5,5>::Board& board)
+    _Solver(const Solver<5, 5>::Board& board)
         :producer(board) {}
 
     std::optional<std::vector<Direction>> operator()()
@@ -84,7 +84,7 @@ private:
     std::atomic<std::shared_ptr<std::vector<Direction>>> output;
 };
 
-std::optional<std::vector<Direction>> Solve(const Solver<5,5>::Board& board)
+std::optional<std::vector<Direction>> Solve(const Solver<5, 5>::Board& board)
 {
     auto solver = std::make_shared<_Solver>(board);
     return (*solver)();
