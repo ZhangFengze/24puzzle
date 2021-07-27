@@ -12,25 +12,36 @@ class Producer
 {
 public:
     Producer(const puzzle::Solver<5, 5>::Board& board,
-        const std::vector<puzzle::Direction>& historySteps)
+        const std::vector<puzzle::Direction>& historySteps, int maxDepth)
     {
         auto taskList = puzzle::Solver<5, 5>::GenerateTasks(board, historySteps, std::thread::hardware_concurrency() * 8);
         tasks = std::vector<puzzle::Solver<5, 5>::Task>(taskList.begin(), taskList.end());
+        maxIndex = (maxDepth + 1) * (int)tasks.size();
     }
 
-    auto operator()()
+    struct Task
+    {
+        puzzle::Solver<5, 5>::Board board;
+        std::vector<puzzle::Direction> steps;
+        int maxDepth;
+    };
+
+    std::optional<Task> operator()()
     {
         auto curIndex = ++index;
+        if (curIndex >= maxIndex)
+            return std::nullopt;
 
         auto depth = curIndex / tasks.size();
         auto index = curIndex % tasks.size();
 
-        return std::make_tuple(tasks[index].board, tasks[index].steps, (int)depth);
+        return Task{ tasks[index].board, tasks[index].steps, (int)depth };
     }
 
 private:
     std::vector<puzzle::Solver<5, 5>::Task> tasks;
     std::atomic_int index = 0;
+    int maxIndex = 0;
 };
 
 class Consumer
@@ -44,7 +55,9 @@ public:
         while (!found_.test())
         {
             auto task = producer_();
-            auto steps = puzzle::Solver<5, 5>::Solve(std::get<0>(task), std::get<1>(task), std::get<2>(task));
+            if (!task)
+                return;
+            auto steps = puzzle::Solver<5, 5>::Solve(task->board, task->steps, task->maxDepth);
             if (!steps)
                 continue;
             output_.store(std::make_shared<std::vector<puzzle::Direction>>(*steps));
@@ -63,8 +76,8 @@ class _Solver : public std::enable_shared_from_this<_Solver>
 {
 public:
     _Solver(const puzzle::Solver<5, 5>::Board& board,
-        const std::vector<puzzle::Direction>& historySteps)
-        :producer(board, historySteps) {}
+        const std::vector<puzzle::Direction>& historySteps, int maxDepth)
+        :producer(board, historySteps, maxDepth) {}
 
     std::optional<std::vector<puzzle::Direction>> operator()()
     {
@@ -84,9 +97,9 @@ private:
 };
 
 std::optional<std::vector<puzzle::Direction>> Solve(const puzzle::Solver<5, 5>::Board& board,
-    const std::vector<puzzle::Direction>& historySteps)
+    const std::vector<puzzle::Direction>& historySteps, int maxDepth)
 {
-    auto solver = std::make_shared<_Solver>(board, historySteps);
+    auto solver = std::make_shared<_Solver>(board, historySteps, maxDepth);
     return (*solver)();
 }
 
@@ -95,7 +108,7 @@ int main()
     auto task = ToTask(ReadAll(std::cin));
     auto board = puzzle::Solver<5, 5>::MakeBoard(task.board);
     auto historySteps = Map(task.steps, [](int dir) {return puzzle::Direction(dir); });
-    auto steps = Solve(board, historySteps);
+    auto steps = Solve(board, historySteps, task.depth);
     std::cout << ToJson(steps);
     return 0;
 }
