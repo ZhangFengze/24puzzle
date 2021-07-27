@@ -7,7 +7,6 @@
 #include "boost/asio/use_future.hpp"
 #include "boost/thread/future.hpp"
 
-using namespace puzzle;
 namespace ba = boost::asio;
 
 class Producer
@@ -15,7 +14,7 @@ class Producer
 public:
     Producer(const puzzle::Solver<5, 5>::Board& board, int preferedCount, int startDepth)
     {
-        for (const auto& rawTask : Solver<5, 5>::GenerateTasks(board, preferedCount))
+        for (const auto& rawTask : puzzle::Solver<5, 5>::GenerateTasks(board, preferedCount))
         {
             SemiTask t;
             t.board = Map(rawTask.board.board, [](const auto& position) {return (int)position.index;});
@@ -54,7 +53,7 @@ int main()
 {
     ba::io_service ios;
 
-    auto board = Solver<5, 5>::MakeBoard
+    auto board = puzzle::Solver<5, 5>::MakeBoard
     ({
         0,  24, 2,  9,  4,
         5,  6,  7,  3,  8,

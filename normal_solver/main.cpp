@@ -2,14 +2,12 @@
 #include "adapter.hpp"
 #include <string>
 
-using namespace puzzle;
-
-std::optional<std::vector<Direction>> Solve(const Solver<5, 5>::Board& board)
+std::optional<std::vector<puzzle::Direction>> Solve(const puzzle::Solver<5, 5>::Board& board)
 {
     for (int depth = 0;;++depth)
     {
-        std::vector<Direction> steps_;
-        auto steps = Solver<5, 5>::Solve(board, steps_, depth);
+        std::vector<puzzle::Direction> steps_;
+        auto steps = puzzle::Solver<5, 5>::Solve(board, steps_, depth);
         if (steps)
             return steps;
     }
@@ -18,7 +16,7 @@ std::optional<std::vector<Direction>> Solve(const Solver<5, 5>::Board& board)
 int main()
 {
     auto task = ToTask(ReadAll(std::cin));
-    auto board = Solver<5, 5>::MakeBoard(task.board);
+    auto board = puzzle::Solver<5, 5>::MakeBoard(task.board);
     auto steps = Solve(board);
     std::cout << ToJson(steps);
     return 0;

@@ -8,15 +8,13 @@
 #include <tuple>
 #include <iostream>
 
-using namespace puzzle;
-
 class Producer
 {
 public:
-    Producer(const Solver<5, 5>::Board& board)
+    Producer(const puzzle::Solver<5, 5>::Board& board)
     {
-        auto taskList = Solver<5, 5>::GenerateTasks(board, std::thread::hardware_concurrency() * 8);
-        tasks = std::vector<Solver<5, 5>::Task>(taskList.begin(), taskList.end());
+        auto taskList = puzzle::Solver<5, 5>::GenerateTasks(board, std::thread::hardware_concurrency() * 8);
+        tasks = std::vector<puzzle::Solver<5, 5>::Task>(taskList.begin(), taskList.end());
     }
 
     auto operator()()
@@ -30,14 +28,14 @@ public:
     }
 
 private:
-    std::vector<Solver<5, 5>::Task> tasks;
+    std::vector<puzzle::Solver<5, 5>::Task> tasks;
     std::atomic_int index = 0;
 };
 
 class Consumer
 {
 public:
-    Consumer(Producer& producer, std::atomic_flag& found, std::atomic<std::shared_ptr<std::vector<Direction>>>& output)
+    Consumer(Producer& producer, std::atomic_flag& found, std::atomic<std::shared_ptr<std::vector<puzzle::Direction>>>& output)
         :producer_(producer), found_(found), output_(output) {}
 
     void operator()()
@@ -45,10 +43,10 @@ public:
         while (!found_.test())
         {
             auto task = producer_();
-            auto steps = Solver<5, 5>::Solve(std::get<0>(task), std::get<1>(task), std::get<2>(task));
+            auto steps = puzzle::Solver<5, 5>::Solve(std::get<0>(task), std::get<1>(task), std::get<2>(task));
             if (!steps)
                 continue;
-            output_.store(std::make_shared<std::vector<Direction>>(*steps));
+            output_.store(std::make_shared<std::vector<puzzle::Direction>>(*steps));
             found_.test_and_set();
             found_.notify_all();
         }
@@ -57,16 +55,16 @@ public:
 private:
     Producer& producer_;
     std::atomic_flag& found_;
-    std::atomic<std::shared_ptr<std::vector<Direction>>>& output_;
+    std::atomic<std::shared_ptr<std::vector<puzzle::Direction>>>& output_;
 };
 
 class _Solver : public std::enable_shared_from_this<_Solver>
 {
 public:
-    _Solver(const Solver<5, 5>::Board& board)
+    _Solver(const puzzle::Solver<5, 5>::Board& board)
         :producer(board) {}
 
-    std::optional<std::vector<Direction>> operator()()
+    std::optional<std::vector<puzzle::Direction>> operator()()
     {
         for (unsigned int i = 0; i < std::thread::hardware_concurrency(); ++i)
         {
@@ -80,10 +78,10 @@ public:
 private:
     Producer producer;
     std::atomic_flag found;// no need to init since C++20
-    std::atomic<std::shared_ptr<std::vector<Direction>>> output;
+    std::atomic<std::shared_ptr<std::vector<puzzle::Direction>>> output;
 };
 
-std::optional<std::vector<Direction>> Solve(const Solver<5, 5>::Board& board)
+std::optional<std::vector<puzzle::Direction>> Solve(const puzzle::Solver<5, 5>::Board& board)
 {
     auto solver = std::make_shared<_Solver>(board);
     return (*solver)();
@@ -92,7 +90,7 @@ std::optional<std::vector<Direction>> Solve(const Solver<5, 5>::Board& board)
 int main()
 {
     auto task = ToTask(ReadAll(std::cin));
-    auto board = Solver<5, 5>::MakeBoard(task.board);
+    auto board = puzzle::Solver<5, 5>::MakeBoard(task.board);
     auto steps = Solve(board);
     std::cout << ToJson(steps);
     return 0;

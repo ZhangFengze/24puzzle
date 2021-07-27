@@ -7,7 +7,6 @@
 #include "boost/asio/use_future.hpp"
 #include "boost/thread/future.hpp"
 
-using namespace puzzle;
 namespace ba = boost::asio;
 
 auto AsyncSolve(const Task& task, ba::io_service& ios)
@@ -19,7 +18,7 @@ int main()
 {
     ba::io_service ios;
 
-    auto board = Solver<5, 5>::MakeBoard
+    auto board = puzzle::Solver<5, 5>::MakeBoard
     ({
         0,  24, 2,  9,  4,
         5,  6,  7,  3,  8,
@@ -27,7 +26,7 @@ int main()
         15, 21, 22, 13, 19,
         20, 16, 23, 17, 1
         });
-    auto rawTasks = Solver<5, 5>::GenerateTasks(board, 290);
+    auto rawTasks = puzzle::Solver<5, 5>::GenerateTasks(board, 290);
     auto tasks = Map(rawTasks,
         [](auto rawTask)
         {
