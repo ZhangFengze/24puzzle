@@ -47,12 +47,13 @@ private:
 class Consumer
 {
 public:
-    Consumer(Producer& producer, std::atomic_flag& found, std::atomic<std::shared_ptr<std::vector<puzzle::Direction>>>& output)
-        :producer_(producer), found_(found), output_(output) {}
+    Consumer(Producer& producer, std::atomic_flag& found,
+        std::atomic<std::shared_ptr<std::vector<puzzle::Direction>>>& output)
+        :producer_(producer), exit_(found), output_(output) {}
 
     void operator()()
     {
-        while (!found_.test())
+        while (!exit_.test())
         {
             auto task = producer_();
             if (!task)
@@ -61,46 +62,37 @@ public:
             if (!steps)
                 continue;
             output_.store(std::make_shared<std::vector<puzzle::Direction>>(*steps));
-            found_.test_and_set();
-            found_.notify_all();
+            exit_.test_and_set();
+            exit_.notify_all();
         }
     }
 
 private:
     Producer& producer_;
-    std::atomic_flag& found_;
+    std::atomic_flag& exit_;
     std::atomic<std::shared_ptr<std::vector<puzzle::Direction>>>& output_;
-};
-
-class _Solver : public std::enable_shared_from_this<_Solver>
-{
-public:
-    _Solver(const puzzle::Solver<5, 5>::Board& board,
-        const std::vector<puzzle::Direction>& historySteps, int maxDepth)
-        :producer(board, historySteps, maxDepth) {}
-
-    std::optional<std::vector<puzzle::Direction>> operator()()
-    {
-        for (unsigned int i = 0; i < std::thread::hardware_concurrency(); ++i)
-        {
-            std::thread t{ [self = shared_from_this(), this] { Consumer{ producer,found,output }(); } };
-            t.detach();
-        }
-        found.wait(false);
-        return *output.load();
-    }
-
-private:
-    Producer producer;
-    std::atomic_flag found;// no need to init since C++20
-    std::atomic<std::shared_ptr<std::vector<puzzle::Direction>>> output;
 };
 
 std::optional<std::vector<puzzle::Direction>> Solve(const puzzle::Solver<5, 5>::Board& board,
     const std::vector<puzzle::Direction>& historySteps, int maxDepth)
 {
-    auto solver = std::make_shared<_Solver>(board, historySteps, maxDepth);
-    return (*solver)();
+    Producer producer{ board, historySteps, maxDepth };
+    std::atomic_flag exit;// no need to init since C++20
+    std::atomic<std::shared_ptr<std::vector<puzzle::Direction>>> output;
+
+    std::vector<std::thread> consumers;
+    for (unsigned int i = 0; i < std::thread::hardware_concurrency(); ++i)
+    {
+        consumers.emplace_back(
+            std::thread{ Consumer{ producer,exit,output } });
+    }
+    for (auto& consumer : consumers)
+        consumer.join();
+
+    auto steps = output.load();
+    if (steps)
+        return *steps;
+    return std::nullopt;
 }
 
 int main()
