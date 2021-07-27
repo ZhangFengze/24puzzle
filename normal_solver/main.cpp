@@ -3,7 +3,6 @@
 #include <string>
 
 using namespace puzzle;
-using namespace puzzle::impl;
 
 std::optional<std::vector<Direction>> Solve(const Solver<5, 5>::Board& board)
 {

@@ -9,7 +9,6 @@
 #include <iostream>
 
 using namespace puzzle;
-using namespace puzzle::impl;
 
 class Producer
 {

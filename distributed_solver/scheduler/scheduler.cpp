@@ -7,13 +7,13 @@
 #include "boost/asio/use_future.hpp"
 #include "boost/thread/future.hpp"
 
-using namespace puzzle::impl;
+using namespace puzzle;
 namespace ba = boost::asio;
 
 class Producer
 {
 public:
-    Producer(const puzzle::impl::Solver<5, 5>::Board& board, int preferedCount, int startDepth)
+    Producer(const puzzle::Solver<5, 5>::Board& board, int preferedCount, int startDepth)
     {
         for (const auto& rawTask : Solver<5, 5>::GenerateTasks(board, preferedCount))
         {
