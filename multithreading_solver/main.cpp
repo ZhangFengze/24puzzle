@@ -8,8 +8,8 @@
 #include <tuple>
 #include <iostream>
 
-using namespace n_puzzle_solver;
-using namespace n_puzzle_solver::impl;
+using namespace puzzle;
+using namespace puzzle::impl;
 
 class Producer
 {

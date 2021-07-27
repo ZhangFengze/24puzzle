@@ -12,12 +12,12 @@ namespace Aliyun {
                     Pistache::Http::ResponseWriter& response) override
                 {
                     auto task = ToTask(req.body());
-                    auto board = n_puzzle_solver::impl::Solver<5, 5>::MakeBoard(task.board);
-                    auto historySteps = Map(task.steps, [](int dir) {return n_puzzle_solver::Direction(dir); });
+                    auto board = puzzle::impl::Solver<5, 5>::MakeBoard(task.board);
+                    auto historySteps = Map(task.steps, [](int dir) {return puzzle::Direction(dir); });
                     for (int depth = task.depth;;++depth)
                     {
                         auto tempSteps = historySteps;
-                        auto steps = n_puzzle_solver::impl::Solver<5, 5>::Solve(board, tempSteps, depth);
+                        auto steps = puzzle::impl::Solver<5, 5>::Solve(board, tempSteps, depth);
                         if (steps)
                         {
                             auto result = ToJson(*steps);

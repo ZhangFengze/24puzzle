@@ -2,8 +2,8 @@
 #include "adapter.hpp"
 #include <string>
 
-using namespace n_puzzle_solver;
-using namespace n_puzzle_solver::impl;
+using namespace puzzle;
+using namespace puzzle::impl;
 
 std::optional<std::vector<Direction>> Solve(const Solver<5, 5>::Board& board)
 {

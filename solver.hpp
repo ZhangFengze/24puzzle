@@ -3,7 +3,7 @@
 #include <vector>
 #include <array>
 
-namespace n_puzzle_solver
+namespace puzzle
 {
     enum class Direction
     {
@@ -25,7 +25,7 @@ namespace n_puzzle_solver
 #include <algorithm>
 #include <memory>
 
-namespace n_puzzle_solver
+namespace puzzle
 {
     namespace impl
     {

@@ -7,7 +7,7 @@
 #include "boost/asio/use_future.hpp"
 #include "boost/thread/future.hpp"
 
-using namespace n_puzzle_solver::impl;
+using namespace puzzle::impl;
 namespace ba = boost::asio;
 
 auto AsyncSolve(const Task& task, ba::io_service& ios)

@@ -117,12 +117,12 @@ std::string ToJson(const Container& c)
     return impl::ToString(doc);
 }
 
-std::string ToJson(const std::vector<n_puzzle_solver::Direction>& v)
+std::string ToJson(const std::vector<puzzle::Direction>& v)
 {
     return ToJson(Map(v, [](const auto& dir) {return (int)dir; }));
 }
 
-std::string ToJson(const std::optional<std::vector<n_puzzle_solver::Direction>>& option)
+std::string ToJson(const std::optional<std::vector<puzzle::Direction>>& option)
 {
     return option ? ToJson(*option) : "null";
 }
