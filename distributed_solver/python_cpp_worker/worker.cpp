@@ -8,11 +8,7 @@ std::string Solve(const std::string& in)
     auto board = n_puzzle_solver::impl::Solver<5, 5>::MakeBoard(task.board);
     auto tempSteps = Map(task.steps, [](int dir) {return n_puzzle_solver::Direction(dir); });
     auto steps = n_puzzle_solver::impl::Solver<5, 5>::Solve(board, tempSteps, task.depth);
-
-    if (!steps)
-        return "null";
-
-    return ToJson(*steps);
+    return ToJson(steps);
 }
 
 extern "C"

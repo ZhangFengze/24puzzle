@@ -122,6 +122,11 @@ std::string ToJson(const std::vector<n_puzzle_solver::Direction>& v)
     return ToJson(Map(v, [](const auto& dir) {return (int)dir; }));
 }
 
+std::string ToJson(const std::optional<std::vector<n_puzzle_solver::Direction>>& option)
+{
+    return option ? ToJson(*option) : "null";
+}
+
 inline std::string ReadAll(std::istream& in)
 {
     std::string str;

@@ -95,10 +95,6 @@ int main()
     auto task = ToTask(ReadAll(std::cin));
     auto board = Solver<5, 5>::MakeBoard(task.board);
     auto steps = Solve(board);
-
-    if (!steps)
-        std::cout<<"null"<<std::endl;
-    else
-        std::cout << ToJson(*steps);
+    std::cout << ToJson(steps);
     return 0;
 }
