@@ -11,9 +11,10 @@
 class Producer
 {
 public:
-    Producer(const puzzle::Solver<5, 5>::Board& board)
+    Producer(const puzzle::Solver<5, 5>::Board& board,
+        const std::vector<puzzle::Direction>& historySteps)
     {
-        auto taskList = puzzle::Solver<5, 5>::GenerateTasks(board, std::thread::hardware_concurrency() * 8);
+        auto taskList = puzzle::Solver<5, 5>::GenerateTasks(board, historySteps, std::thread::hardware_concurrency() * 8);
         tasks = std::vector<puzzle::Solver<5, 5>::Task>(taskList.begin(), taskList.end());
     }
 
@@ -61,8 +62,9 @@ private:
 class _Solver : public std::enable_shared_from_this<_Solver>
 {
 public:
-    _Solver(const puzzle::Solver<5, 5>::Board& board)
-        :producer(board) {}
+    _Solver(const puzzle::Solver<5, 5>::Board& board,
+        const std::vector<puzzle::Direction>& historySteps)
+        :producer(board, historySteps) {}
 
     std::optional<std::vector<puzzle::Direction>> operator()()
     {
@@ -81,9 +83,10 @@ private:
     std::atomic<std::shared_ptr<std::vector<puzzle::Direction>>> output;
 };
 
-std::optional<std::vector<puzzle::Direction>> Solve(const puzzle::Solver<5, 5>::Board& board)
+std::optional<std::vector<puzzle::Direction>> Solve(const puzzle::Solver<5, 5>::Board& board,
+    const std::vector<puzzle::Direction>& historySteps)
 {
-    auto solver = std::make_shared<_Solver>(board);
+    auto solver = std::make_shared<_Solver>(board, historySteps);
     return (*solver)();
 }
 
@@ -91,7 +94,7 @@ int main()
 {
     auto task = ToTask(ReadAll(std::cin));
     auto board = puzzle::Solver<5, 5>::MakeBoard(task.board);
-    auto steps = Solve(board);
+    auto steps = Solve(board, {});
     std::cout << ToJson(steps);
     return 0;
 }

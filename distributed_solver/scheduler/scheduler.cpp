@@ -12,9 +12,10 @@ namespace ba = boost::asio;
 class Producer
 {
 public:
-    Producer(const puzzle::Solver<5, 5>::Board& board, int preferedCount, int startDepth)
+    Producer(const puzzle::Solver<5, 5>::Board& board,
+        const std::vector<puzzle::Direction>& historySteps, int preferedCount, int startDepth)
     {
-        for (const auto& rawTask : puzzle::Solver<5, 5>::GenerateTasks(board, preferedCount))
+        for (const auto& rawTask : puzzle::Solver<5, 5>::GenerateTasks(board, historySteps, preferedCount))
         {
             SemiTask t;
             t.board = Map(rawTask.board.board, [](const auto& position) {return (int)position.index;});
@@ -61,7 +62,7 @@ int main()
         15, 21, 22, 13, 19,
         20, 16, 23, 17, 1
         });
-    Producer producer(board, 290, 60);
+    Producer producer(board, {}, 290, 60);
 
     std::string result;
 

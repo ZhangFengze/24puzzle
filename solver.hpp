@@ -184,10 +184,11 @@ namespace puzzle
             std::vector<Direction> steps;
         };
 
-        static std::list<Task> GenerateTasks(const Board& board, int preferedTasks)
+        static std::list<Task> GenerateTasks(const Board& board,
+            const std::vector<Direction>& historySteps, int preferedTasks)
         {
             std::list<Task> tasks;
-            tasks.push_back({ board,{} });
+            tasks.push_back({ board, historySteps });
 
             while (!tasks.empty() && tasks.size() < preferedTasks)
             {
