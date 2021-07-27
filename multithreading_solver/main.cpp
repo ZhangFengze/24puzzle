@@ -92,10 +92,7 @@ std::optional<std::vector<Direction>> Solve(const Solver<5,5>::Board& board)
 
 int main()
 {
-    std::string in;
-    std::copy(std::istream_iterator<char>(std::cin), std::istream_iterator<char>(), std::back_inserter(in));
-
-    auto task = ToTask(in);
+    auto task = ToTask(ReadAll(std::cin));
     auto board = Solver<5, 5>::MakeBoard(task.board);
     auto steps = Solve(board);
 

@@ -5,6 +5,7 @@
 #include <vector>
 #include <array>
 #include <algorithm>
+#include <iostream>
 
 namespace impl
 {
@@ -113,4 +114,11 @@ std::string ToJson(const Container& c)
     for (auto i : c)
         doc.PushBack(i, doc.GetAllocator());
     return impl::ToString(doc);
+}
+
+inline std::string ReadAll(std::istream& in)
+{
+    std::string str;
+    std::copy(std::istream_iterator<char>(in), std::istream_iterator<char>(), std::back_inserter(str));
+    return str;
 }

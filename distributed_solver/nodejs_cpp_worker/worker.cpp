@@ -4,10 +4,7 @@
 
 int main()
 {
-    std::string in;
-    std::copy(std::istream_iterator<char>(std::cin), std::istream_iterator<char>(), std::back_inserter(in));
-
-    auto task = ToTask(in);
+    auto task = ToTask(ReadAll(std::cin));
     auto board = n_puzzle_solver::impl::Solver<5, 5>::MakeBoard(task.board);
     auto tempSteps = Map(task.steps, [](int dir) {return n_puzzle_solver::Direction(dir); });
     auto steps = n_puzzle_solver::impl::Solver<5, 5>::Solve(board, tempSteps, task.depth);
