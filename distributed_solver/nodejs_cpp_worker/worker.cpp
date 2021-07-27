@@ -1,5 +1,5 @@
 #include "solver.hpp"
-#include "adapter.h"
+#include "adapter.hpp"
 #include <iostream>
 
 int main()

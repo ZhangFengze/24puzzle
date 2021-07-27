@@ -2,7 +2,7 @@
 
 #include "solver.hpp"
 #include "async_http_client.hpp"
-#include "adapter.h"
+#include "adapter.hpp"
 #include "boost/asio.hpp"
 #include "boost/asio/use_future.hpp"
 #include "boost/thread/future.hpp"

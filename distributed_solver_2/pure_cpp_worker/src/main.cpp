@@ -1,6 +1,6 @@
 #include "handler.h"
 #include "solver.hpp"
-#include "adapter.h"
+#include "adapter.hpp"
 
 namespace Aliyun {
 namespace FC {

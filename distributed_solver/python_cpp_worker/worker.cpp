@@ -1,5 +1,5 @@
 #include "solver.hpp"
-#include "adapter.h"
+#include "adapter.hpp"
 #include <iostream>
 
 std::string Solve(const std::string& in)

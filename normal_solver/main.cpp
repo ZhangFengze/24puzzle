@@ -1,5 +1,5 @@
 #include "solver.hpp"
-#include "adapter.h"
+#include "adapter.hpp"
 #include <string>
 
 using namespace n_puzzle_solver;
