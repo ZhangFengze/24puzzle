@@ -15,7 +15,7 @@ public:
                 auto board = n_puzzle_solver::impl::Solver<5, 5>::MakeBoard(task.board);
                 auto tempSteps = Map(task.steps, [](int dir) {return n_puzzle_solver::Direction(dir); });
                 auto steps = n_puzzle_solver::impl::Solver<5, 5>::Solve(board, tempSteps, task.depth);
-                auto result = steps? ToJson(Map(*steps, [](const auto& dir) {return (int)dir; })) : "null";
+                auto result = steps? ToJson(*steps) : "null";
                 response.send(Pistache::Http::Code::Ok, result);
             }
    void OnInitialize(const FcContext& context) override{}

@@ -12,7 +12,7 @@ std::string Solve(const std::string& in)
     if (!steps)
         return "null";
 
-    return ToJson(Map(*steps, [](const auto& dir) {return (int)dir; }));
+    return ToJson(*steps);
 }
 
 extern "C"

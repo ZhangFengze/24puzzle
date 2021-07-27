@@ -25,6 +25,6 @@ int main()
     if (!steps)
         std::cout << "null" << std::endl;
     else
-        std::cout << ToJson(Map(*steps, [](const auto& dir) {return (int)dir; }));
+        std::cout << ToJson(*steps);
     return 0;
 }

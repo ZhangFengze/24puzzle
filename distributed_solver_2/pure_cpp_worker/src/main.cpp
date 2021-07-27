@@ -20,7 +20,7 @@ public:
                     auto steps = n_puzzle_solver::impl::Solver<5, 5>::Solve(board, tempSteps, depth);
                     if(steps)
                     {
-                        auto result = ToJson(Map(*steps, [](const auto& dir) {return (int)dir; }));
+                        auto result = ToJson(*steps);
                         response.send(Pistache::Http::Code::Ok, result);
                         return;
                     }

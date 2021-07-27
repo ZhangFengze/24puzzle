@@ -1,4 +1,5 @@
 #pragma once
+#include "solver.hpp"
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
 #include <string>
@@ -114,6 +115,11 @@ std::string ToJson(const Container& c)
     for (auto i : c)
         doc.PushBack(i, doc.GetAllocator());
     return impl::ToString(doc);
+}
+
+std::string ToJson(const std::vector<n_puzzle_solver::Direction>& v)
+{
+    return ToJson(Map(v, [](const auto& dir) {return (int)dir; }));
 }
 
 inline std::string ReadAll(std::istream& in)
