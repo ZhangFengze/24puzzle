@@ -1,18 +1,5 @@
 #pragma once
-#include <optional>
-#include <vector>
 #include <array>
-
-namespace puzzle
-{
-    enum class Direction
-    {
-        Up, Right, Down, Left
-    };
-}
-
-// internals
-
 #include <list>
 #include <vector>
 #include <numeric>
@@ -25,6 +12,11 @@ namespace puzzle
 
 namespace puzzle
 {
+    enum class Direction
+    {
+        Up, Right, Down, Left
+    };
+
     namespace impl
     {
         constexpr std::array<Direction, 4> Directions =
