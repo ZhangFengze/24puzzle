@@ -1,5 +1,5 @@
 #include "handler.h"
-#include "solver.h"
+#include "solver.hpp"
 #include "adapter.h"
 
 namespace Aliyun {
