@@ -82,10 +82,7 @@ std::optional<std::vector<puzzle::Direction>> Solve(const puzzle::Solver<5, 5>::
 
     std::vector<std::thread> consumers;
     for (unsigned int i = 0; i < std::thread::hardware_concurrency(); ++i)
-    {
-        consumers.emplace_back(
-            std::thread{ Consumer{ producer,exit,output } });
-    }
+        consumers.emplace_back(std::thread{ Consumer{ producer,exit,output } });
     for (auto& consumer : consumers)
         consumer.join();
 
