@@ -11,12 +11,11 @@
 class Producer
 {
 public:
-    Producer(const puzzle::Solver<5, 5>::Board& board,
-        const std::vector<puzzle::Direction>& historySteps, int maxDepth)
+    Producer(const Task& task)
     {
-        auto taskList = puzzle::Solver<5, 5>::GenerateTasks(board, historySteps, std::thread::hardware_concurrency() * 8);
+        auto taskList = puzzle::Solver<5, 5>::GenerateTasks(task.board, task.steps, std::thread::hardware_concurrency() * 8);
         tasks = std::vector<puzzle::Solver<5, 5>::Task>(taskList.begin(), taskList.end());
-        maxIndex = (maxDepth + 1) * (int)tasks.size();
+        maxIndex = (task.depth + 1) * (int)tasks.size();
     }
 
     std::optional<Task> operator()()
@@ -66,10 +65,9 @@ private:
     std::atomic<std::shared_ptr<std::vector<puzzle::Direction>>>& output_;
 };
 
-std::optional<std::vector<puzzle::Direction>> Solve(const puzzle::Solver<5, 5>::Board& board,
-    const std::vector<puzzle::Direction>& historySteps, int maxDepth)
+std::optional<std::vector<puzzle::Direction>> Solve(const Task& task)
 {
-    Producer producer{ board, historySteps, maxDepth };
+    Producer producer{ task };
     std::atomic_flag exit;// no need to init since C++20
     std::atomic<std::shared_ptr<std::vector<puzzle::Direction>>> output;
 
@@ -88,7 +86,7 @@ std::optional<std::vector<puzzle::Direction>> Solve(const puzzle::Solver<5, 5>::
 int main()
 {
     auto task = ToTask(ReadAll(std::cin));
-    auto steps = Solve(task.board, task.steps, task.depth);
+    auto steps = Solve(task);
     std::cout << ToJson(steps);
     return 0;
 }
