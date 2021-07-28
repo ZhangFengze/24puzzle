@@ -5,9 +5,7 @@
 std::string Solve(const std::string& in)
 {
     auto task = ToTask(in);
-    auto board = puzzle::Solver<5, 5>::MakeBoard(task.board);
-    auto tempSteps = Map(task.steps, [](int dir) {return puzzle::Direction(dir); });
-    auto steps = puzzle::Solver<5, 5>::Solve(board, tempSteps, task.depth);
+    auto steps = puzzle::Solver<5, 5>::Solve(task.board, task.steps, task.depth);
     return ToJson(steps);
 }
 

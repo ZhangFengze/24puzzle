@@ -16,12 +16,7 @@ public:
         const std::vector<puzzle::Direction>& historySteps, int preferedCount, int startDepth)
     {
         for (const auto& rawTask : puzzle::Solver<5, 5>::GenerateTasks(board, historySteps, preferedCount))
-        {
-            SemiTask t;
-            t.board = Map(rawTask.board.board, [](const auto& position) {return (int)position.index;});
-            t.steps = Map(rawTask.steps, [](const auto& dir) {return (int)dir;});
-            tasks_.push_back(t);
-        }
+            tasks_.push_back(ToPlaneTask(Task{ rawTask.board,rawTask.steps,0 }));
         index = startDepth * tasks_.size();
     }
 
@@ -32,20 +27,17 @@ public:
         auto depth = curIndex / tasks_.size();
         auto index = curIndex % tasks_.size();
 
-        return Task{ tasks_[index].board, tasks_[index].steps, (int)depth };
+        auto task = tasks_[index];
+        task.depth = depth;
+        return task;
     }
 
 private:
-    struct SemiTask
-    {
-        std::array<int, 25> board;
-        std::vector<int> steps;
-    };
-    std::vector<SemiTask> tasks_;
+    std::vector<PlaneTask> tasks_;
     std::atomic_int index = 0;
 };
 
-auto AsyncSolve(const Task& task, ba::io_service& ios)
+auto AsyncSolve(const PlaneTask& task, ba::io_service& ios)
 {
     return AsyncHttpRequest(ios, "1045481767726147.cn-beijing.fc.aliyuncs.com", "80", "/2016-08-15/proxy/puzzle/test/", ToJson(task));
 }
@@ -55,14 +47,12 @@ int main()
     ba::io_service ios;
 
     auto task = ToTask(ReadAll(std::cin));
-    auto board = puzzle::Solver<5, 5>::MakeBoard(task.board);
-    auto historySteps = Map(task.steps, [](int dir) {return puzzle::Direction(dir); });
-    Producer producer(board, historySteps, 290, 60);
+    Producer producer(task.board, task.steps, 290, 60);
 
     std::string result;
 
-    std::function<void(const Task&)> ContinuouslyAsyncSolve;
-    ContinuouslyAsyncSolve = [&](const Task& task)
+    std::function<void(const PlaneTask&)> ContinuouslyAsyncSolve;
+    ContinuouslyAsyncSolve = [&](const PlaneTask& task)
     {
         AsyncSolve(task, ios).then(
             [&, task](auto f)

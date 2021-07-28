@@ -73,26 +73,56 @@ auto Map(const std::list<T>& in, Func func)
 
 struct Task
 {
+    puzzle::Solver<5, 5>::Board board;
+    std::vector<puzzle::Direction> steps;
+    int depth = 0;
+};
+
+struct PlaneTask
+{
     std::array<int, 25> board;
     std::vector<int> steps;
     int depth = 0;
 };
 
-inline Task ToTask(const std::string& json)
+inline PlaneTask ToPlaneTask(const Task& task)
+{
+    PlaneTask planeTask;
+    planeTask.board = Map(task.board.board, [](const auto& position) {return (int)position.index; });
+    planeTask.steps = Map(task.steps, [](const auto& dir) {return (int)dir; });
+    planeTask.depth = task.depth;
+    return planeTask;
+}
+
+inline Task ToTask(const PlaneTask& planeTask)
+{
+    Task task;
+    task.board = puzzle::Solver<5, 5>::MakeBoard(planeTask.board);
+    task.steps = Map(planeTask.steps, [](int dir) {return puzzle::Direction(dir); });
+    task.depth = planeTask.depth;
+    return task;
+}
+
+inline PlaneTask ToPlaneTask(const std::string& json)
 {
     using namespace impl;
 
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseStopWhenDoneFlag>(json.c_str());
 
-    Task t;
+    PlaneTask t;
     FromJson(t.board, doc["board"]);
     FromJson(t.steps, doc["steps"]);
     t.depth = doc["depth"].GetInt();
     return t;
 }
 
-inline std::string ToJson(const Task& task)
+inline Task ToTask(const std::string& json)
+{
+    return ToTask(ToPlaneTask(json));
+}
+
+inline std::string ToJson(const PlaneTask& task)
 {
     using namespace impl;
 
@@ -105,6 +135,11 @@ inline std::string ToJson(const Task& task)
     v.AddMember("depth", task.depth, alloc);
 
     return ToString(v);
+}
+
+inline std::string ToJson(const Task& task)
+{
+    return ToJson(ToPlaneTask(task));
 }
 
 template<typename Container>

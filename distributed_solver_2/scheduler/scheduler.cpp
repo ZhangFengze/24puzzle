@@ -9,7 +9,7 @@
 
 namespace ba = boost::asio;
 
-auto AsyncSolve(const Task& task, ba::io_service& ios)
+auto AsyncSolve(const PlaneTask& task, ba::io_service& ios)
 {
     return AsyncHttpRequest(ios, "1045481767726147.cn-beijing.fc.aliyuncs.com", "80", "/2016-08-15/proxy/puzzle/test/", ToJson(task));
 }
@@ -17,23 +17,14 @@ auto AsyncSolve(const Task& task, ba::io_service& ios)
 int main()
 {
     auto task = ToTask(ReadAll(std::cin));
-    auto board = puzzle::Solver<5, 5>::MakeBoard(task.board);
-    auto historySteps = Map(task.steps, [](int dir) {return puzzle::Direction(dir); });
-    auto rawTasks = puzzle::Solver<5, 5>::GenerateTasks(board, historySteps, 290);
-    auto tasks = Map(rawTasks,
-        [](auto rawTask)
-        {
-            auto board = Map(rawTask.board.board, [](const auto& position) {return (int)position.index; });
-            auto steps = Map(rawTask.steps, [](const auto& dir) {return (int)dir; });
-            return Task{ board, steps, 0 };
-        });
+    auto tasks = puzzle::Solver<5, 5>::GenerateTasks(task.board, task.steps, 290);
 
     ba::io_service ios;
 
     std::string result;
     for (const auto& task : tasks)
     {
-        AsyncSolve(task, ios).then(
+        AsyncSolve(ToPlaneTask(Task{ task.board,task.steps,0 }), ios).then(
             [&, task](auto f)
             {
                 auto _ = f.get();
