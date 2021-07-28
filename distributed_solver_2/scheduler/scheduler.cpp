@@ -16,17 +16,10 @@ auto AsyncSolve(const Task& task, ba::io_service& ios)
 
 int main()
 {
-    ba::io_service ios;
-
-    auto board = puzzle::Solver<5, 5>::MakeBoard
-    ({
-        0,  24, 2,  9,  4,
-        5,  6,  7,  3,  8,
-        10, 11, 12, 18, 14,
-        15, 21, 22, 13, 19,
-        20, 16, 23, 17, 1
-        });
-    auto rawTasks = puzzle::Solver<5, 5>::GenerateTasks(board, {}, 290);
+    auto task = ToTask(ReadAll(std::cin));
+    auto board = puzzle::Solver<5, 5>::MakeBoard(task.board);
+    auto historySteps = Map(task.steps, [](int dir) {return puzzle::Direction(dir); });
+    auto rawTasks = puzzle::Solver<5, 5>::GenerateTasks(board, historySteps, 290);
     auto tasks = Map(rawTasks,
         [](auto rawTask)
         {
@@ -34,6 +27,8 @@ int main()
             auto steps = Map(rawTask.steps, [](const auto& dir) {return (int)dir; });
             return Task{ board, steps, 0 };
         });
+
+    ba::io_service ios;
 
     std::string result;
     for (const auto& task : tasks)

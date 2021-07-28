@@ -54,15 +54,10 @@ int main()
 {
     ba::io_service ios;
 
-    auto board = puzzle::Solver<5, 5>::MakeBoard
-    ({
-        0,  24, 2,  9,  4,
-        5,  6,  7,  3,  8,
-        10, 11, 12, 18, 14,
-        15, 21, 22, 13, 19,
-        20, 16, 23, 17, 1
-        });
-    Producer producer(board, {}, 290, 60);
+    auto task = ToTask(ReadAll(std::cin));
+    auto board = puzzle::Solver<5, 5>::MakeBoard(task.board);
+    auto historySteps = Map(task.steps, [](int dir) {return puzzle::Direction(dir); });
+    Producer producer(board, historySteps, 290, 60);
 
     std::string result;
 
