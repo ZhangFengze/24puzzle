@@ -39,9 +39,9 @@ private:
 class Consumer
 {
 public:
-    Consumer(Producer& producer, std::atomic_flag& found,
+    Consumer(Producer& producer, std::atomic_flag& exit,
         std::atomic<std::shared_ptr<std::vector<puzzle::Direction>>>& output)
-        :producer_(producer), exit_(found), output_(output) {}
+        :producer_(producer), exit_(exit), output_(output) {}
 
     void operator()()
     {
