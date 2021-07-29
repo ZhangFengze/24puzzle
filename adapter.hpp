@@ -39,7 +39,7 @@ namespace impl
     void FromJson(std::array<T, size>& to, const rapidjson::Value& from)
     {
         assert(from.GetArray().Size() == size);
-        for (size_t i = 0;i < size;++i)
+        for (rapidjson::SizeType i = 0;i < size;++i)
             to[i] = from.GetArray()[i].Get<T>();
     }
 }
