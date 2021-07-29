@@ -17,12 +17,12 @@ public:
     {
         for (const auto& rawTask : puzzle::Solver<5, 5>::GenerateTasks(board, historySteps, preferredCount))
             tasks_.push_back(ToPlaneTask(Task{ rawTask.board,rawTask.steps,0 }));
-        index = startDepth * tasks_.size();
+        index_ = startDepth * tasks_.size();
     }
 
     auto operator()()
     {
-        auto curIndex = ++index;
+        auto curIndex = ++index_;
 
         auto depth = curIndex / tasks_.size();
         auto index = curIndex % tasks_.size();
@@ -34,7 +34,7 @@ public:
 
 private:
     std::vector<PlaneTask> tasks_;
-    std::atomic_size_t index = 0;
+    std::atomic_size_t index_ = 0;
 };
 
 auto AsyncSolve(const PlaneTask& task, ba::io_service& ios)
