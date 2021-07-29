@@ -28,13 +28,13 @@ public:
         auto index = curIndex % tasks_.size();
 
         auto task = tasks_[index];
-        task.depth = depth;
+        task.depth = (int)depth;
         return task;
     }
 
 private:
     std::vector<PlaneTask> tasks_;
-    std::atomic_int index = 0;
+    std::atomic_size_t index = 0;
 };
 
 auto AsyncSolve(const PlaneTask& task, ba::io_service& ios)
