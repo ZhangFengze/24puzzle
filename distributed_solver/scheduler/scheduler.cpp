@@ -13,9 +13,9 @@ class Producer
 {
 public:
     Producer(const puzzle::Solver<5, 5>::Board& board,
-        const std::vector<puzzle::Direction>& historySteps, int preferedCount, int startDepth)
+        const std::vector<puzzle::Direction>& historySteps, int preferredCount, int startDepth)
     {
-        for (const auto& rawTask : puzzle::Solver<5, 5>::GenerateTasks(board, historySteps, preferedCount))
+        for (const auto& rawTask : puzzle::Solver<5, 5>::GenerateTasks(board, historySteps, preferredCount))
             tasks_.push_back(ToPlaneTask(Task{ rawTask.board,rawTask.steps,0 }));
         index = startDepth * tasks_.size();
     }
