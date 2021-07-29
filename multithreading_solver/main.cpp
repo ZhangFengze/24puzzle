@@ -14,26 +14,26 @@ public:
     Producer(const Task& task, int preferredCount)
     {
         auto taskList = puzzle::Solver<5, 5>::GenerateTasks(task.board, task.steps, preferredCount);
-        tasks = ToVector(taskList);
-        maxIndex = (task.depth + 1) * tasks.size();
+        tasks_ = ToVector(taskList);
+        maxIndex_ = (task.depth + 1) * tasks_.size();
     }
 
     std::optional<Task> operator()()
     {
-        auto curIndex = ++index;
-        if (curIndex >= maxIndex)
+        auto curIndex = ++index_;
+        if (curIndex >= maxIndex_)
             return std::nullopt;
 
-        auto depth = curIndex / tasks.size();
-        auto index = curIndex % tasks.size();
+        auto depth = curIndex / tasks_.size();
+        auto index = curIndex % tasks_.size();
 
-        return Task{ tasks[index].board, tasks[index].steps, (int)depth };
+        return Task{ tasks_[index].board, tasks_[index].steps, (int)depth };
     }
 
 private:
-    std::vector<puzzle::Solver<5, 5>::Task> tasks;
-    std::atomic_size_t index = 0;
-    size_t maxIndex = 0;
+    std::vector<puzzle::Solver<5, 5>::Task> tasks_;
+    std::atomic_size_t index_ = 0;
+    size_t maxIndex_ = 0;
 };
 
 class Consumer
