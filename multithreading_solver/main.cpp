@@ -15,7 +15,7 @@ public:
     {
         auto taskList = puzzle::Solver<5, 5>::GenerateTasks(task.board, task.steps, preferredCount);
         tasks = ToVector(taskList);
-        maxIndex = (task.depth + 1) * (int)tasks.size();
+        maxIndex = (task.depth + 1) * tasks.size();
     }
 
     std::optional<Task> operator()()
@@ -32,8 +32,8 @@ public:
 
 private:
     std::vector<puzzle::Solver<5, 5>::Task> tasks;
-    std::atomic_int index = 0;
-    int maxIndex = 0;
+    std::atomic_size_t index = 0;
+    size_t maxIndex = 0;
 };
 
 class Consumer
