@@ -14,7 +14,7 @@ public:
     Producer(const Task& task)
     {
         auto taskList = puzzle::Solver<5, 5>::GenerateTasks(task.board, task.steps, std::thread::hardware_concurrency() * 8);
-        tasks = std::vector<puzzle::Solver<5, 5>::Task>(taskList.begin(), taskList.end());
+        tasks = ToVector(taskList);
         maxIndex = (task.depth + 1) * (int)tasks.size();
     }
 

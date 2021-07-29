@@ -168,3 +168,9 @@ inline std::string ReadAll(std::istream& in)
     std::copy(std::istream_iterator<char>(in), std::istream_iterator<char>(), std::back_inserter(str));
     return str;
 }
+
+template<typename T>
+std::vector<T> ToVector(const std::list<T>& list)
+{
+    return std::vector<T>{ list.begin(), list.end() };
+}
