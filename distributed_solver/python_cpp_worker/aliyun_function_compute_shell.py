@@ -28,7 +28,7 @@ def handler(environ, start_response):
     result = Solve(task)
 
     status = '200 OK'
-    response_headers = [('Content-type', 'text/plain')]
+    response_headers = [('Content-type', 'application/json')]
     start_response(status, response_headers)
 
     return [result]
