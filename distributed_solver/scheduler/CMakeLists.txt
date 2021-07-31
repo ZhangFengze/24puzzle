@@ -9,6 +9,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE "../../submodules/rapidjson/i
 target_include_directories(${PROJECT_NAME} PRIVATE "../../submodules/boost")
 target_include_directories(${PROJECT_NAME} PRIVATE "../..")
 target_link_directories(${PROJECT_NAME} PRIVATE "../../submodules/boost/stage/lib")
+target_link_libraries(${PROJECT_NAME} pthread boost_thread)
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)

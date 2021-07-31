@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(serverless_solver)
-add_subdirectory(worker)
+project(distributed_solver)
+add_subdirectory(nodejs_cpp_worker)
+add_subdirectory(pure_cpp_worker)
+add_subdirectory(python_cpp_worker)
 add_subdirectory(scheduler)
