@@ -12,22 +12,13 @@ namespace Aliyun {
                     Pistache::Http::ResponseWriter& response) override
                 {
                     auto task = ToTask(req.body());
-                    for (int depth = task.depth;;++depth)
-                    {
-                        auto tempSteps = task.steps;
-                        auto steps = puzzle::Solver<5, 5>::Solve(task.board, tempSteps, depth);
-                        if (steps)
-                        {
-                            auto result = ToJson(*steps);
-                            response.send(Pistache::Http::Code::Ok, result);
-                            return;
-                        }
-                    }
+                    auto steps = puzzle::Solver<5, 5>::Solve(task.board, task.steps, task.depth);
+                    response.send(Pistache::Http::Code::Ok, ToJson(steps));
                 }
                 void OnInitialize(const FcContext& context) override {}
             };
-        }    
-}
+        }
+    }
 }
 
 #include "entrypoint.h"
