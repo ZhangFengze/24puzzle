@@ -1,6 +1,4 @@
 import argparse
-import subprocess
-import itertools
 from common import get_root_path, rmdir, ensure_dir_exists, cmake, build, install
 
 
