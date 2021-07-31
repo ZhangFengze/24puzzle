@@ -26,6 +26,10 @@ def rmdir(dir):
     shutil.rmtree(dir, ignore_errors=True)
 
 
+def ensure_dir_exists(dir):
+    os.makedirs(dir, exist_ok=True)
+
+
 def prefix(install_dir):
     return f"-DCMAKE_INSTALL_PREFIX={install_dir}" if install_dir else ""
 
