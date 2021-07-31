@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(distributed_solver_python_cpp_worker)
+project(aliyun_python_cpp_worker)
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
