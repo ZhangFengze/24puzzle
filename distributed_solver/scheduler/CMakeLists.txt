@@ -7,7 +7,7 @@ add_executable(${PROJECT_NAME} ${source})
 
 target_include_directories(${PROJECT_NAME} PRIVATE "../../submodules/rapidjson/include")
 target_include_directories(${PROJECT_NAME} PRIVATE "../../submodules/boost")
-target_include_directories(${PROJECT_NAME} PRIVATE "../..")
+target_include_directories(${PROJECT_NAME} PRIVATE "../../common")
 target_link_directories(${PROJECT_NAME} PRIVATE "../../submodules/boost/stage/lib")
 target_link_libraries(${PROJECT_NAME} pthread boost_thread)
 
