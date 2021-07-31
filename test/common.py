@@ -5,7 +5,7 @@ import shutil
 
 
 def execute(cmd):
-    print_colored(f"executing: {cmd}")
+    print_green(f"executing: {cmd}")
     assert(0 == subprocess.call(cmd, shell=True))
 
 
@@ -14,14 +14,20 @@ def get_root_path():
     return cur.absolute().parent.parent
 
 
-def print_colored(str):
+def print_green(str):
     green = '\033[92m'
     end = '\033[0m'
     print(f"{green}{str}{end}")
 
 
+def print_red(str):
+    green = '\033[91m'
+    end = '\033[0m'
+    print(f"{green}{str}{end}")
+
+
 def rmdir(dir):
-    print_colored(f"executing: rmdir {dir}")
+    print_green(f"executing: rmdir {dir}")
     shutil.rmtree(dir, ignore_errors=True)
 
 
