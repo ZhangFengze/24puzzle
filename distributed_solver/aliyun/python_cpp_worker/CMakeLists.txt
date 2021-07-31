@@ -16,4 +16,4 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "worker")
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-install(FILES aliyun_function_compute_shell.py http_shell.py DESTINATION bin)
+install(FILES index.py DESTINATION bin)
