@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.7)
-project(distributed_solver_2_pure_cpp_worker)
+project(distributed_solver_2_aliyun_function_compute_worker)
 
 aux_source_directory(src sources)
 add_executable(${PROJECT_NAME} ${sources})
