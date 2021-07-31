@@ -1,5 +1,0 @@
-cmake_minimum_required(VERSION 3.14)
-
-project(distributed_solver_2)
-add_subdirectory(aliyun_function_compute_worker)
-add_subdirectory(scheduler)
