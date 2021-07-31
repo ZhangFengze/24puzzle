@@ -1,13 +1,19 @@
 # -*- coding: utf-8 -*-
-
+import os
 import logging
 import ctypes
 
 
-lib = ctypes.cdll.LoadLibrary(
-    "./libworker.so") or ctypes.cdll.LoadLibrary("./worker.dll")
-Solve = lib.Solve
-Solve.restype = ctypes.c_char_p
+dir = os.path.dirname(os.path.realpath(__file__))
+libPath = os.path.join(dir, "libworker.so")
+lib = ctypes.cdll.LoadLibrary(libPath)
+
+
+def Solve(task):
+    bufferLength = 1024
+    buffer = ctypes.create_string_buffer(bufferLength)
+    lib.Solve(task, buffer, bufferLength)
+    return buffer.value
 
 
 def get_body(environ):
