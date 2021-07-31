@@ -6,3 +6,7 @@
 	path = submodules/boost
 	url = https://github.com/boostorg/boost.git
 	ignore = all
+[submodule "submodules/cpp-httplib"]
+	path = submodules/cpp-httplib
+	url = https://github.com/yhirose/cpp-httplib.git
+	ignore = all
