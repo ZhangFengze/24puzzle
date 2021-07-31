@@ -13,4 +13,4 @@ target_link_libraries(${PROJECT_NAME} PRIVATE pistache pthread -static-libgcc -s
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 
-install(TARGETS ${PROJECT_NAME})
+install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_NAME})
