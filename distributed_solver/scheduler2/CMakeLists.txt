@@ -9,7 +9,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE "../../submodules/rapidjson/i
 target_include_directories(${PROJECT_NAME} PRIVATE "../../submodules/boost")
 target_include_directories(${PROJECT_NAME} PRIVATE "../../common")
 target_link_directories(${PROJECT_NAME} PRIVATE "../../submodules/boost/stage/lib")
-target_link_libraries(${PROJECT_NAME} pthread boost_thread)
+target_link_libraries(${PROJECT_NAME} boost_thread)
+
+find_package(Threads)
+target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
