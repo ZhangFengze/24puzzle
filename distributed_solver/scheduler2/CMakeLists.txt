@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(distributed_solver_2_scheduler)
+project(distributed_solver_scheduler2)
 
 aux_source_directory(. source)
 add_executable(${PROJECT_NAME} ${source})
