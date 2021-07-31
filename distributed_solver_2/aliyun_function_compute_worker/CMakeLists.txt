@@ -5,7 +5,7 @@ aux_source_directory(src sources)
 add_executable(${PROJECT_NAME} ${sources})
 
 target_include_directories(${PROJECT_NAME} PRIVATE include)
-target_include_directories(${PROJECT_NAME} PRIVATE third-party/rapidjson/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ../../submodules/rapidjson/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ../..)
 target_link_directories(${PROJECT_NAME} PRIVATE libs)
 target_link_libraries(${PROJECT_NAME} pistache pthread)
