@@ -15,7 +15,6 @@ def get_root_path():
 
 
 def print_colored(str):
-    os.system("color")
     green = '\033[92m'
     end = '\033[0m'
     print(f"{green}{str}{end}")
