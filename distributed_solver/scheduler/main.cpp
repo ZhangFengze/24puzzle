@@ -44,11 +44,17 @@ auto AsyncSolve(const PlaneTask& task, ba::io_service& ios)
 
 int main()
 {
+    rapidjson::Document config;
+    config.Parse<rapidjson::kParseStopWhenDoneFlag>(ReadAll(std::cin).c_str());
+
+    std::string url = config["url"].GetString();
+    int concurrency = config["concurrency"].GetInt();
+    int taskPreferredCount = config["taskPreferredCount"].GetInt();
+    auto task = ToTask(ToPlaneTask(config["task"]));
+
+    Producer producer(task.board, task.steps, taskPreferredCount, 0);
+
     ba::io_service ios;
-
-    auto task = ToTask(ReadAll(std::cin));
-    Producer producer(task.board, task.steps, 290, 60);
-
     std::string result;
 
     std::function<void(const PlaneTask&)> ContinuouslyAsyncSolve;
@@ -69,7 +75,7 @@ int main()
             });
     };
 
-    for (int i = 0, concurrency = 12; i < concurrency; ++i)
+    for (int i = 0; i < concurrency; ++i)
         ContinuouslyAsyncSolve(producer());
 
     ios.run();

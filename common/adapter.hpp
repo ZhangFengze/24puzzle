@@ -103,18 +103,24 @@ inline Task ToTask(const PlaneTask& planeTask)
     return task;
 }
 
+inline PlaneTask ToPlaneTask(const rapidjson::Value& task)
+{
+    using namespace impl;
+
+    PlaneTask t;
+    FromJson(t.board, task["board"]);
+    FromJson(t.steps, task["steps"]);
+    t.depth = task["depth"].GetInt();
+    return t;
+}
+
 inline PlaneTask ToPlaneTask(const std::string& json)
 {
     using namespace impl;
 
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseStopWhenDoneFlag>(json.c_str());
-
-    PlaneTask t;
-    FromJson(t.board, doc["board"]);
-    FromJson(t.steps, doc["steps"]);
-    t.depth = doc["depth"].GetInt();
-    return t;
+    return ToPlaneTask(doc);
 }
 
 inline Task ToTask(const std::string& json)
