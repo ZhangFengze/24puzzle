@@ -39,7 +39,7 @@ private:
 
 auto AsyncSolve(const PlaneTask& task, ba::io_service& ios)
 {
-    return AsyncHttpRequest(ios, "1045481767726147.cn-beijing.fc.aliyuncs.com", "80", "/2016-08-15/proxy/puzzle/test/", ToJson(task));
+    return AsyncHttpRequest(ios, "1045481767726147.cn-beijing.fc.aliyuncs.com", "80", "/2016-08-15/proxy/puzzle/python_cpp_worker/", ToJson(task));
 }
 
 int main()
