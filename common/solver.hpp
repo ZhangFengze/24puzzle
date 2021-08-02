@@ -152,10 +152,10 @@ namespace puzzle
             Solve(Board board, std::vector<Direction>& steps, int maxSteps)
         {
             int h = ManhattanDistance(board);
-            if (h == 0)
-                return steps;
             if (steps.size() + h > maxSteps)
                 return std::nullopt;
+            if (h == 0)
+                return steps;
             for (auto direction : Directions)
             {
                 if (!steps.empty() && direction == Opposite(steps.back()))
