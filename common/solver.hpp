@@ -149,12 +149,12 @@ namespace puzzle
         }
 
         static std::optional<std::vector<Direction>>
-            Solve(Board board, std::vector<Direction>& steps, int maxDepth)
+            Solve(Board board, std::vector<Direction>& steps, int maxSteps)
         {
             int h = ManhattanDistance(board);
             if (h == 0)
                 return steps;
-            if (steps.size() + h > maxDepth)
+            if (steps.size() + h > maxSteps)
                 return std::nullopt;
             for (auto direction : Directions)
             {
@@ -168,7 +168,7 @@ namespace puzzle
                 steps.push_back(direction);
                 Move<false>(board, direction);
 
-                auto result = Solve(board, steps, maxDepth);
+                auto result = Solve(board, steps, maxSteps);
                 if (result)
                     return result;
 
