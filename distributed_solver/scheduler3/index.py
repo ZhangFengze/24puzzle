@@ -1,3 +1,4 @@
+import os
 import sys
 import aiohttp
 import asyncio
@@ -51,5 +52,7 @@ async def main(url, concurrency, taskPreferredCount, task):
 
 if __name__ == "__main__":
     config = json.loads(sys.stdin.read())
+    if os.name == "nt":
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main(config["url"], config["concurrency"],
                 config["taskPreferredCount"], json.dumps(config["task"])))
