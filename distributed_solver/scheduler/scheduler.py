@@ -13,7 +13,7 @@ class Queue:
 
     def __init__(self, task, preferredCount):
         self.tasks = func.GenerateTasks(json.dumps(task), preferredCount)
-        self.maxIndex = len(self.tasks)*task["depth"]
+        self.maxIndex = len(self.tasks)*(task["depth"]+1)
 
     def Dequeue(self):
         if not self.queue:
