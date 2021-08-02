@@ -55,14 +55,13 @@ async def main(url, concurrency, taskPreferredCount, task):
     for coro in asyncio.as_completed(workers):
         earliest = await coro
         if earliest:
-            print(earliest)
-            return
-    print("null")
+            return earliest
 
 
 if __name__ == "__main__":
     config = json.loads(sys.stdin.read())
     if os.name == "nt":
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    asyncio.run(main(config["url"], config["concurrency"],
-                     config["taskPreferredCount"], config["task"]))
+    result = asyncio.run(main(config["url"], config["concurrency"],
+                              config["taskPreferredCount"], config["task"]))
+    print(result if result else "null")
