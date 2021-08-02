@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(distributed_solver_scheduler3)
+project(scheduler)
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 set(Python_USE_STATIC_LIBS TRUE)
