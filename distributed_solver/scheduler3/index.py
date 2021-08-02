@@ -17,7 +17,7 @@ class Queue:
         if not self.queue:
             depth = self.index // len(self.tasks)
             index = self.index % len(self.tasks)
-            self.index=self.index+1
+            self.index = self.index+1
 
             return {
                 "board": self.tasks[index]["board"],
@@ -55,4 +55,4 @@ if __name__ == "__main__":
     if os.name == "nt":
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main(config["url"], config["concurrency"],
-                config["taskPreferredCount"], json.dumps(config["task"])))
+                     config["taskPreferredCount"], json.dumps(config["task"])))
