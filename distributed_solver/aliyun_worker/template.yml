@@ -9,10 +9,9 @@ Resources:
         Handler: index.handler
         Runtime: python3
         Timeout: 60
-        MemorySize: 512
+        MemorySize: 3072
         InstanceConcurrency: 1
-        EnvironmentVariables: {}
-        CodeUri: ../../bin/distributed_solver/aliyun/python_cpp_worker/release/bin
+        CodeUri: ../../bin/distributed_solver/aliyun_worker/release/bin
       Events:
         defaultTrigger:
           Type: HTTP
