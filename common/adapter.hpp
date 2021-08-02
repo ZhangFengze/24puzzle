@@ -8,40 +8,37 @@
 #include <algorithm>
 #include <iostream>
 
-namespace impl
+inline std::string ToString(const rapidjson::Value& doc)
 {
-    inline std::string ToString(const rapidjson::Value& doc)
-    {
-        rapidjson::StringBuffer sb;
-        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
-        doc.Accept(writer);
-        return sb.GetString();
-    }
+    rapidjson::StringBuffer sb;
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
+    doc.Accept(writer);
+    return sb.GetString();
+}
 
-    template<typename Container, typename Allocator>
-    rapidjson::Value ToJson(const Container& c, Allocator& alloc)
-    {
-        rapidjson::Value v;
-        v.SetArray();
-        for (auto i : c)
-            v.PushBack(i, alloc);
-        return v;
-    }
+template<typename Container, typename Allocator>
+rapidjson::Value ToJson(const Container& c, Allocator& alloc)
+{
+    rapidjson::Value v;
+    v.SetArray();
+    for (auto i : c)
+        v.PushBack(i, alloc);
+    return v;
+}
 
-    template<typename T>
-    void FromJson(std::vector<T>& to, const rapidjson::Value& from)
-    {
-        for (const auto& v : from.GetArray())
-            to.push_back(v.Get<T>());
-    }
+template<typename T>
+void FromJson(std::vector<T>& to, const rapidjson::Value& from)
+{
+    for (const auto& v : from.GetArray())
+        to.push_back(v.Get<T>());
+}
 
-    template<typename T, size_t size>
-    void FromJson(std::array<T, size>& to, const rapidjson::Value& from)
-    {
-        assert(from.GetArray().Size() == size);
-        for (rapidjson::SizeType i = 0;i < size;++i)
-            to[i] = from.GetArray()[i].Get<T>();
-    }
+template<typename T, size_t size>
+void FromJson(std::array<T, size>& to, const rapidjson::Value& from)
+{
+    assert(from.GetArray().Size() == size);
+    for (rapidjson::SizeType i = 0;i < size;++i)
+        to[i] = from.GetArray()[i].Get<T>();
 }
 
 template<typename T, typename Func>
@@ -105,8 +102,6 @@ inline Task ToTask(const PlaneTask& planeTask)
 
 inline PlaneTask ToPlaneTask(const rapidjson::Value& task)
 {
-    using namespace impl;
-
     PlaneTask t;
     FromJson(t.board, task["board"]);
     FromJson(t.steps, task["steps"]);
@@ -116,8 +111,6 @@ inline PlaneTask ToPlaneTask(const rapidjson::Value& task)
 
 inline PlaneTask ToPlaneTask(const std::string& json)
 {
-    using namespace impl;
-
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseStopWhenDoneFlag>(json.c_str());
     return ToPlaneTask(doc);
@@ -130,8 +123,6 @@ inline Task ToTask(const std::string& json)
 
 inline std::string ToJson(const PlaneTask& task)
 {
-    using namespace impl;
-
     rapidjson::Document v;
     auto& alloc = v.GetAllocator();
 
@@ -155,7 +146,7 @@ std::string ToJson(const Container& c)
     doc.SetArray();
     for (auto i : c)
         doc.PushBack(i, doc.GetAllocator());
-    return impl::ToString(doc);
+    return ToString(doc);
 }
 
 inline std::string ToJson(const std::vector<puzzle::Direction>& v)
