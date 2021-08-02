@@ -75,14 +75,14 @@ struct Task
 {
     puzzle::Solver<5, 5>::Board board;
     std::vector<puzzle::Direction> steps;
-    int depth = 0;
+    int maxSteps = 0;
 };
 
 struct PlaneTask
 {
     std::array<int, 25> board;
     std::vector<int> steps;
-    int depth = 0;
+    int maxSteps = 0;
 };
 
 inline PlaneTask ToPlaneTask(const Task& task)
@@ -90,7 +90,7 @@ inline PlaneTask ToPlaneTask(const Task& task)
     PlaneTask planeTask;
     planeTask.board = Map(task.board.board, [](const auto& position) {return (int)position.index; });
     planeTask.steps = Map(task.steps, [](const auto& dir) {return (int)dir; });
-    planeTask.depth = task.depth;
+    planeTask.maxSteps = task.maxSteps;
     return planeTask;
 }
 
@@ -99,7 +99,7 @@ inline Task ToTask(const PlaneTask& planeTask)
     Task task;
     task.board = puzzle::Solver<5, 5>::MakeBoard(planeTask.board);
     task.steps = Map(planeTask.steps, [](int dir) {return puzzle::Direction(dir); });
-    task.depth = planeTask.depth;
+    task.maxSteps = planeTask.maxSteps;
     return task;
 }
 
@@ -110,7 +110,7 @@ inline PlaneTask ToPlaneTask(const rapidjson::Value& task)
     PlaneTask t;
     FromJson(t.board, task["board"]);
     FromJson(t.steps, task["steps"]);
-    t.depth = task["depth"].GetInt();
+    t.maxSteps = task["maxSteps"].GetInt();
     return t;
 }
 
@@ -138,7 +138,7 @@ inline std::string ToJson(const PlaneTask& task)
     v.SetObject();
     v.AddMember("board", ToJson(task.board, alloc), alloc);
     v.AddMember("steps", ToJson(task.steps, alloc), alloc);
-    v.AddMember("depth", task.depth, alloc);
+    v.AddMember("maxSteps", task.maxSteps, alloc);
 
     return ToString(v);
 }

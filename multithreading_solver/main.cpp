@@ -15,7 +15,7 @@ public:
     {
         auto taskList = puzzle::Solver<5, 5>::GenerateTasks(task.board, task.steps, preferredCount);
         tasks_ = ToVector(taskList);
-        maxIndex_ = (task.depth + 1) * tasks_.size();
+        maxIndex_ = (task.maxSteps + 1) * tasks_.size();
     }
 
     std::optional<Task> operator()()
@@ -24,10 +24,10 @@ public:
         if (curIndex >= maxIndex_)
             return std::nullopt;
 
-        auto depth = curIndex / tasks_.size();
+        auto maxSteps = curIndex / tasks_.size();
         auto index = curIndex % tasks_.size();
 
-        return Task{ tasks_[index].board, tasks_[index].steps, (int)depth };
+        return Task{ tasks_[index].board, tasks_[index].steps, (int)maxSteps };
     }
 
 private:
@@ -50,7 +50,7 @@ public:
             auto task = producer_();
             if (!task)
                 return;
-            auto steps = puzzle::Solver<5, 5>::Solve(task->board, task->steps, task->depth);
+            auto steps = puzzle::Solver<5, 5>::Solve(task->board, task->steps, task->maxSteps);
             if (!steps)
                 continue;
             output_.store(std::make_shared<std::vector<puzzle::Direction>>(*steps));

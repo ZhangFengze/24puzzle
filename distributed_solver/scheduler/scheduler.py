@@ -13,20 +13,20 @@ class Queue:
 
     def __init__(self, task, preferredCount):
         self.tasks = func.GenerateTasks(json.dumps(task), preferredCount)
-        self.maxIndex = len(self.tasks)*(task["depth"]+1)
+        self.maxIndex = len(self.tasks)*(task["maxSteps"]+1)
 
     def Dequeue(self):
         if not self.queue:
             if self.index >= self.maxIndex:
                 return None
-            depth = self.index // len(self.tasks)
+            maxSteps = self.index // len(self.tasks)
             index = self.index % len(self.tasks)
             self.index = self.index+1
 
             return {
                 "board": self.tasks[index]["board"],
                 "steps": self.tasks[index]["steps"],
-                "depth": depth
+                "maxSteps": maxSteps
             }
         else:
             return self.queue.pop(0)
