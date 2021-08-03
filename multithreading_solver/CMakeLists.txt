@@ -9,6 +9,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE "../submodules/rapidjson/incl
 target_include_directories(${PROJECT_NAME} PRIVATE "../submodules/concurrentqueue")
 target_include_directories(${PROJECT_NAME} PRIVATE "../common")
 
+find_package(Threads REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
+
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 
