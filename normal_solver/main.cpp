@@ -4,7 +4,7 @@
 
 std::optional<std::vector<puzzle::Direction>> Solve(const Task& task)
 {
-    for (int maxSteps = 0;maxSteps < task.maxSteps;++maxSteps)
+    for (int maxSteps = 0;maxSteps <= task.maxSteps;++maxSteps)
     {
         auto historySteps = task.steps;
         auto steps = puzzle::Solver<5, 5>::Solve(task.board, historySteps, maxSteps);
