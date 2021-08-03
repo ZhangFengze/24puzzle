@@ -86,7 +86,8 @@ std::optional<std::vector<puzzle::Direction>> Solve(const Task& task)
 int main()
 {
     auto task = ToTask(ReadAll(std::cin));
-    auto steps = Solve(task);
+    bool solvable = puzzle::Solver<5, 5>::Solvable(task.board);
+    auto steps = solvable ? Solve(task) : std::nullopt;
     std::cout << ToJson(steps);
     return 0;
 }

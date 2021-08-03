@@ -33,7 +33,10 @@ PyObject* GenerateTasks(PyObject* self, PyObject* args)
     int preferredCount;
     if (!PyArg_ParseTuple(args, "si", &rawTask, &preferredCount))
         Py_RETURN_NONE;
+
     auto task = ToTask(rawTask);
+    if (!puzzle::Solver<5, 5>::Solvable(task.board))
+        return PyList_New(0);
     auto tasks = puzzle::Solver<5, 5>::GenerateTasks(task.board, task.steps, preferredCount);
 
     auto result = PyList_New(0);
@@ -49,7 +52,7 @@ static PyMethodDef methods[] =
         "GenerateTasks",
         &GenerateTasks,
         METH_VARARGS,
-        NULL 
+        NULL
     },
     {
         NULL, NULL, 0, NULL
