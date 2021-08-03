@@ -60,7 +60,7 @@ async def main(url, concurrency, taskPreferredCount, task):
     results = await asyncio.gather(*workers)
     results = list(filter(lambda x: x != None, results))
     if not results:
-        return json.dumps(results)
+        return json.dumps(None)
     else:
         return json.dumps(min(results, key=lambda x: len(x)))
 
