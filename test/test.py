@@ -82,6 +82,6 @@ if __name__ == "__main__":
         steps = len(result) if result != None else -1
 
         if steps == case["expectSteps"]:
-            print_green(solver.name, case, end-start, result, sep=" ,")
+            print_green(solver.name, case, end-start, result, sep=", ")
         else:
-            print_red(solver.name, case, end-start, result, sep=" ,")
+            print_red(solver.name, case, end-start, result, sep=", ")
