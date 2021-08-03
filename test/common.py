@@ -2,6 +2,7 @@ import os
 import pathlib
 import subprocess
 import shutil
+import io
 
 
 def execute(cmd):
@@ -14,16 +15,24 @@ def get_root_path():
     return cur.absolute().parent.parent
 
 
-def print_green(str):
-    green = '\033[92m'
-    end = '\033[0m'
-    print(f"{green}{str}{end}")
+class colors:
+    GREEN = '\033[92m'
+    RED = '\033[91m'
+    _END = '\033[0m'
 
 
-def print_red(str):
-    green = '\033[91m'
-    end = '\033[0m'
-    print(f"{green}{str}{end}")
+def print_colored(color, *args, **kwargs):
+    with io.StringIO() as out:
+        print(*args, file=out, **kwargs)
+        print(f"{color}{out.getvalue()}{colors._END}")
+
+
+def print_green(*args, **kwargs):
+    print_colored(colors.GREEN, *args, **kwargs)
+
+
+def print_red(*args, **kwargs):
+    print_colored(colors.RED, *args, **kwargs)
 
 
 def rmdir(dir):
