@@ -6,6 +6,7 @@ aux_source_directory(. source)
 add_executable(${PROJECT_NAME} ${source})
 
 target_include_directories(${PROJECT_NAME} PRIVATE "../submodules/rapidjson/include")
+target_include_directories(${PROJECT_NAME} PRIVATE "../submodules/concurrentqueue")
 target_include_directories(${PROJECT_NAME} PRIVATE "../common")
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)

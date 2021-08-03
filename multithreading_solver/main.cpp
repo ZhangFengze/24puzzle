@@ -1,5 +1,6 @@
 #include "solver.hpp"
 #include "adapter.hpp"
+#include "concurrentqueue.h"
 #include <thread>
 #include <string>
 #include <atomic>
@@ -40,7 +41,7 @@ class Consumer
 {
 public:
     Consumer(Producer& producer, std::atomic_flag& exit,
-        std::atomic<std::shared_ptr<std::vector<puzzle::Direction>>>& output)
+        moodycamel::ConcurrentQueue<std::vector<puzzle::Direction>>& output)
         :producer_(producer), exit_(exit), output_(output) {}
 
     void operator()()
@@ -53,7 +54,7 @@ public:
             auto steps = puzzle::Solver<5, 5>::Solve(task->board, task->steps, task->maxSteps);
             if (!steps)
                 continue;
-            output_.store(std::make_shared<std::vector<puzzle::Direction>>(*steps));
+            output_.enqueue(*steps);
             exit_.test_and_set();
             exit_.notify_all();
         }
@@ -62,25 +63,30 @@ public:
 private:
     Producer& producer_;
     std::atomic_flag& exit_;
-    std::atomic<std::shared_ptr<std::vector<puzzle::Direction>>>& output_;
+    moodycamel::ConcurrentQueue<std::vector<puzzle::Direction>>& output_;
 };
 
 std::optional<std::vector<puzzle::Direction>> Solve(const Task& task)
 {
     Producer producer{ task, (int)std::thread::hardware_concurrency() * 8 };
     std::atomic_flag exit;// no need to init since C++20
-    std::atomic<std::shared_ptr<std::vector<puzzle::Direction>>> output;
+    moodycamel::ConcurrentQueue<std::vector<puzzle::Direction>> results;
 
     std::vector<std::thread> consumers;
     for (unsigned int i = 0; i < std::thread::hardware_concurrency(); ++i)
-        consumers.emplace_back(std::thread{ Consumer{ producer,exit,output } });
+        consumers.emplace_back(std::thread{ Consumer{ producer,exit,results} });
     for (auto& consumer : consumers)
         consumer.join();
 
-    auto steps = output.load();
-    if (steps)
-        return *steps;
-    return std::nullopt;
+    std::optional<std::vector<puzzle::Direction>> best;
+    std::vector<puzzle::Direction> temp;
+    while (results.try_dequeue(temp))
+    {
+        size_t curSize = best ? best->size() : std::numeric_limits<size_t>::max();
+        if (temp.size() < curSize)
+            best = temp;
+    }
+    return best;
 }
 
 int main()
