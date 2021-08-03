@@ -2,3 +2,7 @@
 	path = submodules/rapidjson
 	url = https://github.com/Tencent/rapidjson.git
 	ignore = all
+[submodule "submodules/concurrentqueue"]
+	path = submodules/concurrentqueue
+	url = https://github.com/cameron314/concurrentqueue.git
+	ignore = all
