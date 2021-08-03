@@ -21,7 +21,7 @@ public:
 
     std::optional<Task> operator()()
     {
-        auto curIndex = ++index_;
+        auto curIndex = index_++;
         if (curIndex >= maxIndex_)
             return std::nullopt;
 
