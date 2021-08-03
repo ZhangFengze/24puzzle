@@ -58,8 +58,11 @@ async def main(url, concurrency, taskPreferredCount, task):
     workers = [asyncio.create_task(worker(queue, url, exit))
                for _ in range(concurrency)]
     results = await asyncio.gather(*workers)
-    results = filter(lambda x: x != None, results)
-    return json.dumps(min(results, key=lambda x: len(x)))
+    results = list(filter(lambda x: x != None, results))
+    if not results:
+        return json.dumps(results)
+    else:
+        return json.dumps(min(results, key=lambda x: len(x)))
 
 
 if __name__ == "__main__":
