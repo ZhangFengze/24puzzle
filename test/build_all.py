@@ -17,6 +17,6 @@ if __name__ == "__main__":
 
     for project, config in itertools.product(projects, configs):
         result = subprocess.call(
-            f"python3 test/build.py {project} --config {config}", shell=True)
+            f"python test/build.py {project} --config {config}", shell=True)
         if result != 0:
             print_red(f"build {project} {config} failed!")
