@@ -35,27 +35,31 @@ class Queue:
         self.queue.append(task)
 
 
-async def worker(queue: Queue, url: str):
-    while True:
+async def worker(queue: Queue, url: str, exit: asyncio.Event):
+    while not exit.is_set():
         task = queue.Dequeue()
         if not task:
             return
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json=task) as resp:
-                result = await resp.text()
-                if result != "null":
-                    return result
-                # TODO error
+                if resp.status != 200:
+                    queue.Enqueue(task)
+                else:
+                    result = await resp.text()
+                    result = json.loads(result)
+                    if result != None:
+                        exit.set()
+                        return result
 
 
 async def main(url, concurrency, taskPreferredCount, task):
+    exit = asyncio.Event()
     queue = Queue(task, taskPreferredCount)
-    workers = [asyncio.create_task(worker(queue, url))
+    workers = [asyncio.create_task(worker(queue, url, exit))
                for _ in range(concurrency)]
-    for coro in asyncio.as_completed(workers):
-        earliest = await coro
-        if earliest:
-            return earliest
+    results = await asyncio.gather(*workers)
+    results = filter(lambda x: x != None, results)
+    return json.dumps(min(results, key=lambda x: len(x)))
 
 
 if __name__ == "__main__":
@@ -64,4 +68,4 @@ if __name__ == "__main__":
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     result = asyncio.run(main(config["url"], config["concurrency"],
                               config["taskPreferredCount"], config["task"]))
-    print(result if result else "null")
+    print(result)
