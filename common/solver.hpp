@@ -152,7 +152,7 @@ namespace puzzle
             Solve(Board board, std::vector<Direction>& steps, int maxSteps)
         {
             int h = ManhattanDistance(board);
-            if (steps.size() + h > maxSteps)
+            if ((int)steps.size() + h > maxSteps)
                 return std::nullopt;
             if (h == 0)
                 return steps;
