@@ -3,7 +3,7 @@ Transform: 'Aliyun::Serverless-2018-04-03'
 Resources:
   puzzle:
     Type: 'Aliyun::Serverless::Service'
-    python_cpp_worker:
+    worker:
       Type: 'Aliyun::Serverless::Function'
       Properties:
         Handler: index.handler
@@ -19,21 +19,3 @@ Resources:
             AuthType: anonymous
             Methods:
               - POST
-    worker:
-      Type: 'Aliyun::Serverless::Function'
-      Properties:
-        Handler: index.handler
-        Runtime: python3
-        Timeout: 60
-        InstanceType: c1
-        MemorySize: 32768
-        InstanceConcurrency: 1
-        CodeUri: ../../bin/distributed_solver/aliyun_worker/release/bin
-      Events:
-        defaultTrigger:
-          Type: HTTP
-          Properties:
-            AuthType: anonymous
-            Methods:
-              - POST
-
