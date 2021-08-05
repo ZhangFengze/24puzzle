@@ -8,6 +8,8 @@ import func
 
 
 def split(data, parts):
+    if len(data)==0:
+        return data
     span = len(data)//parts
     return [data[x:x+span] for x in range(0, len(data), span)]
 
