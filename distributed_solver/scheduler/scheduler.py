@@ -23,11 +23,11 @@ class Queue:
             index = self.index % len(self.tasks)
             self.index = self.index+1
 
-            return {
+            return ({
                 "board": self.tasks[index]["board"],
                 "steps": self.tasks[index]["steps"],
                 "maxSteps": maxSteps
-            }
+            }, )
         else:
             return self.queue.pop(0)
 
