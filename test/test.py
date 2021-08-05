@@ -53,7 +53,7 @@ def GenerateDistributedSolver(url, concurrency, taskPreferredCount):
             "taskPreferredCount": taskPreferredCount,
             "task": task
         }
-        p = subprocess.Popen(cmd,
+        p = subprocess.Popen(cmd, shell=True,
                              stdin=subprocess.PIPE, stdout=subprocess.PIPE, encoding="utf8")
         out, err = p.communicate(input=json.dumps(config))
         return json.loads(out)
