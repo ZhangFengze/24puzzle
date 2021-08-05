@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import ctypes
+import json
 
 
 dir = os.path.dirname(os.path.realpath(__file__))
@@ -8,11 +9,19 @@ libPath = os.path.join(dir, "libworker.so")
 lib = ctypes.cdll.LoadLibrary(libPath)
 
 
-def Solve(task):
+def SolveOne(task):
+    task = json.dumps(task).encode("utf8")
     bufferLength = 1024
     buffer = ctypes.create_string_buffer(bufferLength)
     lib.Solve(task, buffer, bufferLength)
-    return buffer.value
+    return json.loads(buffer.value)
+
+
+def Solve(tasks):
+    for task in tasks:
+        result = SolveOne(task)
+        if result:
+            return result
 
 
 def get_body(environ):
@@ -24,11 +33,11 @@ def get_body(environ):
 
 
 def handler(environ, start_response):
-    task = get_body(environ)
-    result = Solve(task)
+    tasks = json.loads(get_body(environ))
+    result = Solve(tasks)
 
     status = '200 OK'
     response_headers = [('Content-type', 'application/json')]
     start_response(status, response_headers)
 
-    return [result]
+    return [json.dumps(result).encode("utf8")]
