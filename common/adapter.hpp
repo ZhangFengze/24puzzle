@@ -91,6 +91,26 @@ inline std::string ToJson(const std::optional<std::vector<puzzle::Direction>>& o
     return option ? ToJson(*option) : "null";
 }
 
+namespace nlohmann
+{
+    template<>
+    struct adl_serializer<puzzle::Solver<5, 5>::Task>
+    {
+        static void to_json(json& j, const puzzle::Solver<5, 5>::Task& task)
+        {
+            auto board = Map(task.board.board, [](const auto& position) {return (int)position.index; });
+            j = json{ {"board", board}, {"steps", task.steps} };
+        }
+
+        static void from_json(const json& j, puzzle::Solver<5, 5>::Task& task)
+        {
+            auto board = j.at("board").get<std::array<int, 25>>();
+            task.board = puzzle::Solver<5, 5>::MakeBoard(board);
+            j.at("steps").get_to(task.steps);
+        }
+    };
+}
+
 inline std::string ReadAll(std::istream& in)
 {
     std::string str;

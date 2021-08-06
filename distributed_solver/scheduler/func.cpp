@@ -3,30 +3,6 @@
 #include "solver.hpp"
 #include "adapter.hpp"
 
-PyObject* ToPy(const puzzle::Solver<5, 5>::Board& board)
-{
-    auto list = PyList_New(0);
-    for (const auto& position : board.board)
-        PyList_Append(list, PyLong_FromLong(position.index));
-    return list;
-}
-
-PyObject* ToPy(const std::vector<puzzle::Direction>& vec)
-{
-    auto list = PyList_New(0);
-    for (auto dir : vec)
-        PyList_Append(list, PyLong_FromLong((long)dir));
-    return list;
-}
-
-PyObject* ToPy(const puzzle::Solver<5, 5>::Task& task)
-{
-    auto dict = PyDict_New();
-    PyDict_SetItem(dict, PyUnicode_FromString("board"), ToPy(task.board));
-    PyDict_SetItem(dict, PyUnicode_FromString("steps"), ToPy(task.steps));
-    return dict;
-}
-
 PyObject* GenerateTasks(PyObject* self, PyObject* args)
 {
     const char* rawTask;
@@ -36,14 +12,9 @@ PyObject* GenerateTasks(PyObject* self, PyObject* args)
 
     auto task = ToTask(rawTask);
     if (!puzzle::Solver<5, 5>::Solvable(task.board))
-        return PyList_New(0);
+        return PyUnicode_FromString("[]");
     auto tasks = puzzle::Solver<5, 5>::GenerateTasks(task.board, task.steps, preferredCount);
-
-    auto result = PyList_New(0);
-    for (const auto& task : tasks)
-        PyList_Append(result, ToPy(task));
-
-    return result;
+    return PyUnicode_FromString(json(tasks).dump().c_str());
 }
 
 static PyMethodDef methods[] =
