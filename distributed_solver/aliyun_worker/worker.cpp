@@ -9,6 +9,6 @@ void Solve(const char* rawTask, char* resultBuffer, size_t resultBufferLen)
     auto steps = solvable ?
         puzzle::Solver<5, 5>::Solve(task.board, task.steps, task.maxSteps) :
         std::nullopt;
-    auto result = ToJson(steps);
+    auto result = json(steps).dump();
     strncpy((char*)resultBuffer, result.c_str(), std::min(resultBufferLen, result.size()));
 }

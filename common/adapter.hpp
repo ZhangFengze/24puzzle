@@ -6,6 +6,7 @@
 #include <array>
 #include <algorithm>
 #include <iostream>
+#include <optional>
 
 using json = nlohmann::json;
 
@@ -57,16 +58,6 @@ inline void from_json(const json& j, Task& task)
     j.at("maxSteps").get_to(task.maxSteps);
 }
 
-inline std::string ToJson(const std::vector<puzzle::Direction>& v)
-{
-    return json(v).dump();
-}
-
-inline std::string ToJson(const std::optional<std::vector<puzzle::Direction>>& option)
-{
-    return option ? ToJson(*option) : "null";
-}
-
 namespace nlohmann
 {
     template<>
@@ -83,6 +74,23 @@ namespace nlohmann
             auto board = j.at("board").get<std::array<int, 25>>();
             task.board = puzzle::Solver<5, 5>::MakeBoard(board);
             j.at("steps").get_to(task.steps);
+        }
+    };
+
+    template <typename T>
+    struct adl_serializer<std::optional<T>>
+    {
+        static void to_json(json& j, const std::optional<T>& opt)
+        {
+            if (opt)
+                j = *opt;
+            else
+                j = nullptr;
+        }
+
+        static void from_json(const json& j, std::optional<T>& opt)
+        {
+            opt = j.is_null() ? std::nullopt : j.get<T>();
         }
     };
 }

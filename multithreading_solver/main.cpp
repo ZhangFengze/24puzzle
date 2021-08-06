@@ -94,6 +94,6 @@ int main()
     auto task = json::parse(ReadAll(std::cin)).get<Task>();
     bool solvable = puzzle::Solver<5, 5>::Solvable(task.board);
     auto steps = solvable ? Solve(task) : std::nullopt;
-    std::cout << ToJson(steps);
+    std::cout << json(steps);
     return 0;
 }
