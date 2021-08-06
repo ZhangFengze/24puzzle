@@ -2,44 +2,14 @@
 #include "solver.hpp"
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
+#include "nlohmann/json.hpp"
 #include <string>
 #include <vector>
 #include <array>
 #include <algorithm>
 #include <iostream>
 
-inline std::string ToString(const rapidjson::Value& doc)
-{
-    rapidjson::StringBuffer sb;
-    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
-    doc.Accept(writer);
-    return sb.GetString();
-}
-
-template<typename Container, typename Allocator>
-rapidjson::Value ToJson(const Container& c, Allocator& alloc)
-{
-    rapidjson::Value v;
-    v.SetArray();
-    for (auto i : c)
-        v.PushBack(i, alloc);
-    return v;
-}
-
-template<typename T>
-void FromJson(std::vector<T>& to, const rapidjson::Value& from)
-{
-    for (const auto& v : from.GetArray())
-        to.push_back(v.Get<T>());
-}
-
-template<typename T, size_t size>
-void FromJson(std::array<T, size>& to, const rapidjson::Value& from)
-{
-    assert(from.GetArray().Size() == size);
-    for (rapidjson::SizeType i = 0;i < size;++i)
-        to[i] = from.GetArray()[i].Get<T>();
-}
+using json = nlohmann::json;
 
 template<typename T, typename Func>
 auto Map(const std::vector<T>& in, Func func)
@@ -81,6 +51,7 @@ struct PlaneTask
     std::vector<int> steps;
     int maxSteps = 0;
 };
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlaneTask, board, steps, maxSteps)
 
 inline PlaneTask ToPlaneTask(const Task& task)
 {
@@ -100,58 +71,21 @@ inline Task ToTask(const PlaneTask& planeTask)
     return task;
 }
 
-inline PlaneTask ToPlaneTask(const rapidjson::Value& task)
+inline Task ToTask(const std::string& str)
 {
-    PlaneTask t;
-    FromJson(t.board, task["board"]);
-    FromJson(t.steps, task["steps"]);
-    t.maxSteps = task["maxSteps"].GetInt();
-    return t;
-}
-
-inline PlaneTask ToPlaneTask(const std::string& json)
-{
-    rapidjson::Document doc;
-    doc.Parse<rapidjson::kParseStopWhenDoneFlag>(json.c_str());
-    return ToPlaneTask(doc);
-}
-
-inline Task ToTask(const std::string& json)
-{
-    return ToTask(ToPlaneTask(json));
-}
-
-inline std::string ToJson(const PlaneTask& task)
-{
-    rapidjson::Document v;
-    auto& alloc = v.GetAllocator();
-
-    v.SetObject();
-    v.AddMember("board", ToJson(task.board, alloc), alloc);
-    v.AddMember("steps", ToJson(task.steps, alloc), alloc);
-    v.AddMember("maxSteps", task.maxSteps, alloc);
-
-    return ToString(v);
+    auto planeTask = json::parse(str).get<PlaneTask>();
+    return ToTask(planeTask);
 }
 
 inline std::string ToJson(const Task& task)
 {
-    return ToJson(ToPlaneTask(task));
-}
-
-template<typename Container>
-std::string ToJson(const Container& c)
-{
-    rapidjson::Document doc;
-    doc.SetArray();
-    for (auto i : c)
-        doc.PushBack(i, doc.GetAllocator());
-    return ToString(doc);
+    auto planeTask = ToPlaneTask(task);
+    return json(planeTask).dump();
 }
 
 inline std::string ToJson(const std::vector<puzzle::Direction>& v)
 {
-    return ToJson(Map(v, [](const auto& dir) {return (int)dir; }));
+    return json(v).dump();
 }
 
 inline std::string ToJson(const std::optional<std::vector<puzzle::Direction>>& option)
