@@ -10,30 +10,12 @@
 
 using json = nlohmann::json;
 
-template<typename T, typename Func>
-auto Map(const std::vector<T>& in, Func func)
-{
-    using ResultType = std::vector<std::invoke_result_t<Func, T>>;
-    ResultType out;
-    std::transform(std::begin(in), std::end(in), std::back_inserter(out), func);
-    return out;
-}
-
 template<typename T, typename Func, size_t size>
 auto Map(const std::array<T, size>& in, Func func)
 {
     using ResultType = std::array<std::invoke_result_t<Func, T>, size>;
     ResultType out;
     std::transform(std::begin(in), std::end(in), std::begin(out), func);
-    return out;
-}
-
-template<typename T, typename Func>
-auto Map(const std::list<T>& in, Func func)
-{
-    using ResultType = std::list<std::invoke_result_t<Func, T>>;
-    ResultType out;
-    std::transform(std::begin(in), std::end(in), std::back_inserter(out), func);
     return out;
 }
 
