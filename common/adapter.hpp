@@ -43,42 +43,28 @@ struct Task
     int maxSteps = 0;
 };
 
-struct PlaneTask
+inline void to_json(json& j, const Task& task)
 {
-    std::array<int, 25> board;
-    std::vector<int> steps;
-    int maxSteps = 0;
-};
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlaneTask, board, steps, maxSteps)
-
-inline PlaneTask ToPlaneTask(const Task& task)
-{
-    PlaneTask planeTask;
-    planeTask.board = Map(task.board.board, [](const auto& position) {return (int)position.index; });
-    planeTask.steps = Map(task.steps, [](const auto& dir) {return (int)dir; });
-    planeTask.maxSteps = task.maxSteps;
-    return planeTask;
+    auto board = Map(task.board.board, [](const auto& position) {return (int)position.index; });
+    j = json{ {"board", board}, {"steps", task.steps}, {"maxSteps", task.maxSteps} };
 }
 
-inline Task ToTask(const PlaneTask& planeTask)
+inline void from_json(const json& j, Task& task)
 {
-    Task task;
-    task.board = puzzle::Solver<5, 5>::MakeBoard(planeTask.board);
-    task.steps = Map(planeTask.steps, [](int dir) {return puzzle::Direction(dir); });
-    task.maxSteps = planeTask.maxSteps;
-    return task;
+    auto board = j.at("board").get<std::array<int, 25>>();
+    task.board = puzzle::Solver<5, 5>::MakeBoard(board);
+    j.at("steps").get_to(task.steps);
+    j.at("maxSteps").get_to(task.maxSteps);
 }
 
 inline Task ToTask(const std::string& str)
 {
-    auto planeTask = json::parse(str).get<PlaneTask>();
-    return ToTask(planeTask);
+    return json::parse(str).get<Task>();
 }
 
 inline std::string ToJson(const Task& task)
 {
-    auto planeTask = ToPlaneTask(task);
-    return json(planeTask).dump();
+    return json(task).dump();
 }
 
 inline std::string ToJson(const std::vector<puzzle::Direction>& v)
