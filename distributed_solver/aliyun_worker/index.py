@@ -1,25 +1,11 @@
 # -*- coding: utf-8 -*-
-import os
-import ctypes
 import json
-
-
-dir = os.path.dirname(os.path.realpath(__file__))
-libPath = os.path.join(dir, "libworker.so")
-lib = ctypes.cdll.LoadLibrary(libPath)
-
-
-def SolveOne(task):
-    task = json.dumps(task).encode("utf8")
-    bufferLength = 1024
-    buffer = ctypes.create_string_buffer(bufferLength)
-    lib.Solve(task, buffer, bufferLength)
-    return json.loads(buffer.value)
+import func
 
 
 def Solve(tasks):
     for task in tasks:
-        result = SolveOne(task)
+        result = json.loads(func.Solve(json.dumps(task)))
         if result != None:
             return result
 

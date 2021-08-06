@@ -5,9 +5,8 @@ project(scheduler)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 set(Python_USE_STATIC_LIBS TRUE)
 
-aux_source_directory(. source)
 find_package (Python3 COMPONENTS Interpreter Development)
-Python3_add_library(${PROJECT_NAME} SHARED ${source})
+Python3_add_library(${PROJECT_NAME} SHARED ../func.cpp)
 
 target_include_directories(${PROJECT_NAME} PRIVATE "../../submodules/json/single_include")
 target_include_directories(${PROJECT_NAME} PRIVATE "../../common")

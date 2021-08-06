@@ -3,6 +3,21 @@
 #include "solver.hpp"
 #include "adapter.hpp"
 
+PyObject* Solve(PyObject* self, PyObject* args)
+{
+    const char* rawTask;
+    if (!PyArg_ParseTuple(args, "s", &rawTask))
+        Py_RETURN_NONE;
+
+    auto task = json::parse(rawTask).get<Task>();
+    bool solvable = puzzle::Solver<5, 5>::Solvable(task.board);
+    auto steps = solvable ?
+        puzzle::Solver<5, 5>::Solve(task.board, task.steps, task.maxSteps) :
+        std::nullopt;
+    auto result = json(steps).dump();
+    return PyUnicode_FromString(result.c_str());
+}
+
 PyObject* GenerateTasks(PyObject* self, PyObject* args)
 {
     const char* rawTask;
@@ -22,6 +37,12 @@ static PyMethodDef methods[] =
     {
         "GenerateTasks",
         &GenerateTasks,
+        METH_VARARGS,
+        NULL
+    },
+    {
+        "Solve",
+        &Solve,
         METH_VARARGS,
         NULL
     },
