@@ -6,3 +6,7 @@
 	path = submodules/concurrentqueue
 	url = https://github.com/cameron314/concurrentqueue.git
 	ignore = all
+[submodule "submodules/json"]
+	path = submodules/json
+	url = https://github.com/nlohmann/json.git
+	ignore = all
