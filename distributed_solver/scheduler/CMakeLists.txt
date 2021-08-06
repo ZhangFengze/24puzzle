@@ -11,7 +11,10 @@ Python3_add_library(${PROJECT_NAME} SHARED ${source})
 
 target_include_directories(${PROJECT_NAME} PRIVATE "../../submodules/rapidjson/include")
 target_include_directories(${PROJECT_NAME} PRIVATE "../../common")
-target_link_libraries(${PROJECT_NAME} PRIVATE -static-libgcc -static-libstdc++)
+
+if(NOT WIN32)
+    target_link_libraries(${PROJECT_NAME} PRIVATE -static-libgcc -static-libstdc++)
+endif()
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
