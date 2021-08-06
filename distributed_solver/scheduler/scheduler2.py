@@ -9,7 +9,7 @@ import func
 
 
 def split(data, parts):
-    if len(data)==0:
+    if len(data) == 0:
         return data
     span = ceil(len(data)/parts)
     return [data[x:x+span] for x in range(0, len(data), span)]
