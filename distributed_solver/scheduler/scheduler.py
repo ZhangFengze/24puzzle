@@ -25,7 +25,7 @@ async def solve(tasks, url: str):
 
 async def main(url, concurrency, taskPreferredCount, task):
     tasks = func.GenerateTasks(json.dumps(task), taskPreferredCount)
-    tasks = itertools.product(tasks, range(task["maxSteps"]))
+    tasks = itertools.product(tasks, range(task["maxSteps"]+1))
     tasks = [{"board": task["board"], "steps":task["steps"], "maxSteps":maxSteps}
              for task, maxSteps in tasks]
     groupedTasks = split(list(tasks), concurrency)
