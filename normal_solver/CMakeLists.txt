@@ -5,7 +5,6 @@ project(normal_solver)
 aux_source_directory(. source)
 add_executable(${PROJECT_NAME} ${source})
 
-target_include_directories(${PROJECT_NAME} PRIVATE "../submodules/rapidjson/include")
 target_include_directories(${PROJECT_NAME} PRIVATE "../submodules/json/single_include")
 target_include_directories(${PROJECT_NAME} PRIVATE "../common")
 

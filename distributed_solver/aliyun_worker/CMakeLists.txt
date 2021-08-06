@@ -7,7 +7,6 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 aux_source_directory(. source)
 add_library(${PROJECT_NAME} SHARED ${source})
 
-target_include_directories(${PROJECT_NAME} PRIVATE "../../submodules/rapidjson/include")
 target_include_directories(${PROJECT_NAME} PRIVATE "../../submodules/json/single_include")
 target_include_directories(${PROJECT_NAME} PRIVATE "../../common")
 

@@ -1,7 +1,5 @@
 #pragma once
 #include "solver.hpp"
-#include "rapidjson/document.h"
-#include "rapidjson/prettywriter.h"
 #include "nlohmann/json.hpp"
 #include <string>
 #include <vector>
