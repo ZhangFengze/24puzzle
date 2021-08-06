@@ -20,7 +20,7 @@ def SolveOne(task):
 def Solve(tasks):
     for task in tasks:
         result = SolveOne(task)
-        if result:
+        if result != None:
             return result
 
 
