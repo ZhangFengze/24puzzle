@@ -57,16 +57,6 @@ inline void from_json(const json& j, Task& task)
     j.at("maxSteps").get_to(task.maxSteps);
 }
 
-inline Task ToTask(const std::string& str)
-{
-    return json::parse(str).get<Task>();
-}
-
-inline std::string ToJson(const Task& task)
-{
-    return json(task).dump();
-}
-
 inline std::string ToJson(const std::vector<puzzle::Direction>& v)
 {
     return json(v).dump();

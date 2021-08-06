@@ -10,7 +10,7 @@ PyObject* GenerateTasks(PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple(args, "si", &rawTask, &preferredCount))
         Py_RETURN_NONE;
 
-    auto task = ToTask(rawTask);
+    auto task = json::parse(rawTask).get<Task>();
     if (!puzzle::Solver<5, 5>::Solvable(task.board))
         return PyUnicode_FromString("[]");
     auto tasks = puzzle::Solver<5, 5>::GenerateTasks(task.board, task.steps, preferredCount);
