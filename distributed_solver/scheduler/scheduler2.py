@@ -4,13 +4,14 @@ import aiohttp
 import asyncio
 import json
 import itertools
+from math import ceil
 import func
 
 
 def split(data, parts):
     if len(data)==0:
         return data
-    span = len(data)//parts
+    span = ceil(len(data)/parts)
     return [data[x:x+span] for x in range(0, len(data), span)]
 
 
