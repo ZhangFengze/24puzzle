@@ -1,6 +1,6 @@
 #include "solver.hpp"
 #include "adapter.hpp"
-#include "concurrentqueue.h"
+#include "blockingconcurrentqueue.h"
 #include <thread>
 #include <string>
 #include <atomic>
@@ -31,62 +31,58 @@ public:
         return Task{ tasks_[index].board, tasks_[index].steps, (int)maxSteps };
     }
 
-private:
+    size_t TotalTasks() const { return maxIndex_; }
+
+public:
     std::vector<puzzle::Solver<5, 5>::Task> tasks_;
     std::atomic_size_t index_ = 0;
     size_t maxIndex_ = 0;
 };
 
+using Result = std::optional<std::vector<puzzle::Direction>>;
+
+template<typename T>
+using Queue = moodycamel::BlockingConcurrentQueue<T>;
+
 class Consumer
 {
 public:
-    Consumer(Producer& producer, std::atomic_flag& exit,
-        moodycamel::ConcurrentQueue<std::vector<puzzle::Direction>>& output)
-        :producer_(producer), exit_(exit), output_(output) {}
+    Consumer(Producer& producer, Queue<Result>& output)
+        :producer_(producer), output_(output) {}
 
     void operator()()
     {
-        while (!exit_.test())
+        for (;auto task = producer_();)
         {
-            auto task = producer_();
-            if (!task)
-                return;
             auto steps = puzzle::Solver<5, 5>::Solve(task->board, task->steps, task->maxSteps);
-            if (!steps)
-                continue;
-            output_.enqueue(*steps);
-            exit_.test_and_set();
-            exit_.notify_all();
+            output_.enqueue(steps);
         }
     }
 
 private:
     Producer& producer_;
-    std::atomic_flag& exit_;
-    moodycamel::ConcurrentQueue<std::vector<puzzle::Direction>>& output_;
+    Queue<Result>& output_;
 };
 
-std::optional<std::vector<puzzle::Direction>> Solve(const Task& task)
+Result Solve(const Task& task)
 {
     Producer producer{ task, (int)std::thread::hardware_concurrency() * 8 };
-    std::atomic_flag exit;// no need to init since C++20
-    moodycamel::ConcurrentQueue<std::vector<puzzle::Direction>> results;
+    Queue<Result> results;
 
     std::vector<std::thread> consumers;
     for (unsigned int i = 0; i < std::thread::hardware_concurrency(); ++i)
-        consumers.emplace_back(std::thread{ Consumer{ producer,exit,results} });
+        consumers.emplace_back(std::thread{ Consumer{ producer,results} });
     for (auto& consumer : consumers)
-        consumer.join();
+        consumer.detach();
 
-    std::optional<std::vector<puzzle::Direction>> best;
-    std::vector<puzzle::Direction> temp;
-    while (results.try_dequeue(temp))
+    Result result;
+    for (size_t i = 0;i < producer.TotalTasks();++i)
     {
-        size_t curSize = best ? best->size() : std::numeric_limits<size_t>::max();
-        if (temp.size() < curSize)
-            best = temp;
+        results.wait_dequeue(result);
+        if (result)
+            return result;
     }
-    return best;
+    return std::nullopt;
 }
 
 int main()
