@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.14)
 
 project(multithreading_solver)
 
+add_subdirectory(../common common)
+
 aux_source_directory(. source)
 add_executable(${PROJECT_NAME} ${source})
 
@@ -20,3 +22,7 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 
 install(TARGETS ${PROJECT_NAME})
+install(FILES multithreading_solver.py DESTINATION bin)
+install(FILES multithreading_solver2.py DESTINATION bin)
+install(FILES multithreading_solver3.py DESTINATION bin)
+install(FILES multithreading_solver4.py DESTINATION bin)
