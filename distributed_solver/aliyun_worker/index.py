@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
-import func
+import solver
 
 
 hostName = "*"
@@ -10,7 +10,7 @@ serverPort = 9000
 
 def Solve(tasks):
     for task in tasks:
-        result = json.loads(func.Solve(json.dumps(task)))
+        result = json.loads(solver.Solve(json.dumps(task)))
         if result != None:
             return result
 

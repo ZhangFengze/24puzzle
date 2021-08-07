@@ -5,7 +5,7 @@ import asyncio
 import json
 import itertools
 from math import ceil
-import func
+import solver
 
 
 def split(data, parts):
@@ -24,7 +24,7 @@ async def solve(tasks, url: str):
 
 
 async def main(url, concurrency, taskPreferredCount, task):
-    tasks = json.loads(func.GenerateTasks(
+    tasks = json.loads(solver.GenerateTasks(
         json.dumps(task), taskPreferredCount))
     tasks = itertools.product(tasks, range(task["maxSteps"]+1))
     tasks = [{"board": task["board"], "steps":task["steps"], "maxSteps":maxSteps}
