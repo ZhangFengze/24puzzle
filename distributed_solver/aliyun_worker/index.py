@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
+from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import func
+
+
+hostName = "*"
+serverPort = 9000
 
 
 def Solve(tasks):
@@ -10,20 +15,20 @@ def Solve(tasks):
             return result
 
 
-def get_body(environ):
-    try:
-        request_body_size = int(environ.get('CONTENT_LENGTH', 0))
-    except (ValueError):
-        request_body_size = 0
-    return environ['wsgi.input'].read(request_body_size)
+class MyServer(BaseHTTPRequestHandler):
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length'])
+        tasks = json.loads(self.rfile.read(content_length))
+
+        result = Solve(tasks)
+
+        self.send_response(200)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+
+        self.wfile.write(json.dumps(result).encode("utf8"))
 
 
-def handler(environ, start_response):
-    tasks = json.loads(get_body(environ))
-    result = Solve(tasks)
-
-    status = '200 OK'
-    response_headers = [('Content-type', 'application/json')]
-    start_response(status, response_headers)
-
-    return [json.dumps(result).encode("utf8")]
+if __name__ == "__main__":
+    server = HTTPServer((hostName, serverPort), MyServer)
+    server.serve_forever()
