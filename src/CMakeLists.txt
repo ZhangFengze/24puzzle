@@ -18,11 +18,11 @@ function (cpp_executable name sources)
     set_property(TARGET ${name} PROPERTY CXX_STANDARD 20)
     set_property(TARGET ${name} PROPERTY CXX_STANDARD_REQUIRED ON)
 
-    install(TARGETS ${name})
+    install(TARGETS ${name} DESTINATION .)
 endfunction()
 
 function (python_project name scripts)
-    install(FILES ${scripts} DESTINATION bin)
+    install(FILES ${scripts} DESTINATION .)
 endfunction()
 
 add_subdirectory(common)
