@@ -6,7 +6,7 @@ function (cpp_executable name sources)
 
     target_include_directories(${name} PRIVATE "../submodules/json/single_include")
     target_include_directories(${name} PRIVATE "../submodules/concurrentqueue")
-    target_include_directories(${name} PRIVATE "../common")
+    target_include_directories(${name} PRIVATE "common")
 
     find_package(Threads REQUIRED)
     target_link_libraries(${name} PRIVATE Threads::Threads)
@@ -25,7 +25,7 @@ function (python_project name scripts)
     install(FILES ${scripts} DESTINATION bin)
 endfunction()
 
-add_subdirectory(../common common)
+add_subdirectory(common)
 
 cpp_executable(normal_solver_cpp normal_solver.cpp)
 python_project(normal_solver_py normal_solver.py)
