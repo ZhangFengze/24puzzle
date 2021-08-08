@@ -20,7 +20,7 @@ python src/build.py
 python bin/release/distributed_solver_worker.py
 ```
 
-### Run scheduler or other local solvers
+### Run solvers
 ``` shell
 # make sure all dependencies (C++20 compiler, cmake, python sdk) are installed
 # or use docker
@@ -33,4 +33,6 @@ python src/build.py
 # test
 # edit config.json first
 cat config.json | python bin/release/test.py
+
+# for details, ref src/test.py
 ```
