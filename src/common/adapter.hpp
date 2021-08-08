@@ -26,35 +26,33 @@ struct Task
     int maxSteps = 0;
 };
 
-inline void to_json(json& j, const Task& task)
-{
-    auto board = Map(task.board.board, [](const auto& position) {return (int)position.index; });
-    j = json{ {"board", board}, {"steps", task.steps}, {"maxSteps", task.maxSteps} };
-}
-
-inline void from_json(const json& j, Task& task)
-{
-    auto board = j.at("board").get<std::array<int, 25>>();
-    task.board = puzzle::Solver<5, 5>::MakeBoard(board);
-    j.at("steps").get_to(task.steps);
-    j.at("maxSteps").get_to(task.maxSteps);
-}
-
 namespace nlohmann
 {
+    template<>
+    struct adl_serializer<puzzle::Solver<5, 5>::Board>
+    {
+        static void to_json(json& j, const puzzle::Solver<5, 5>::Board& board)
+        {
+            j = Map(board.board, [](const auto& position) {return (int)position.index; });
+        }
+
+        static void from_json(const json& j, puzzle::Solver<5, 5>::Board& board)
+        {
+            board = puzzle::Solver<5, 5>::MakeBoard(j.get<std::array<int, 25>>());
+        }
+    };
+
     template<>
     struct adl_serializer<puzzle::Solver<5, 5>::Task>
     {
         static void to_json(json& j, const puzzle::Solver<5, 5>::Task& task)
         {
-            auto board = Map(task.board.board, [](const auto& position) {return (int)position.index; });
-            j = json{ {"board", board}, {"steps", task.steps} };
+            j = json{ {"board", task.board}, {"steps", task.steps} };
         }
 
         static void from_json(const json& j, puzzle::Solver<5, 5>::Task& task)
         {
-            auto board = j.at("board").get<std::array<int, 25>>();
-            task.board = puzzle::Solver<5, 5>::MakeBoard(board);
+            j.at("board").get_to(task.board);
             j.at("steps").get_to(task.steps);
         }
     };
@@ -75,6 +73,18 @@ namespace nlohmann
             opt = j.is_null() ? std::nullopt : j.get<T>();
         }
     };
+}
+
+inline void to_json(json& j, const Task& task)
+{
+    j = json{ {"board", task.board}, {"steps", task.steps}, {"maxSteps", task.maxSteps} };
+}
+
+inline void from_json(const json& j, Task& task)
+{
+    j.at("board").get_to(task.board);
+    j.at("steps").get_to(task.steps);
+    j.at("maxSteps").get_to(task.maxSteps);
 }
 
 inline std::string ReadAll(std::istream& in)
