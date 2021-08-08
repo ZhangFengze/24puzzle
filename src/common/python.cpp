@@ -21,10 +21,7 @@ PyObject* Solve(PyObject* self, PyObject* args)
         Py_RETURN_NONE;
 
     auto task = json::parse(rawTask).get<Task>();
-    bool solvable = puzzle::Solver<5, 5>::Solvable(task.board);
-    auto steps = solvable ?
-        puzzle::Solver<5, 5>::Solve(task.board, task.steps, task.maxSteps) :
-        std::nullopt;
+    auto steps = puzzle::Solver<5, 5>::Solve(task.board, task.steps, task.maxSteps);
     auto result = json(steps).dump();
     return PyUnicode_FromString(result.c_str());
 }
