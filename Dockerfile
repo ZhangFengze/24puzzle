@@ -3,3 +3,4 @@ COPY . /usr/src/app
 WORKDIR /usr/src/app
 EXPOSE 9000
 RUN python test/build.py
+CMD python bin/release/distributed_solver_worker.py
