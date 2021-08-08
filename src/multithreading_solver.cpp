@@ -70,7 +70,7 @@ Result Solve(const Task& task)
     Producer producer{ task, (int)concurrency * 8 };
     Queue<Result> results;
 
-    for (unsigned int i = 0; i < concurrency; ++i)
+    for (int i = 0; i < concurrency; ++i)
     {
         std::thread consumer{ Consumer{ producer,results} };
         consumer.detach();
