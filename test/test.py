@@ -8,6 +8,7 @@ import timeit
 import typing
 import datetime
 import csv
+from solver import Correct
 from common import print_green, print_red
 
 
@@ -56,7 +57,8 @@ if __name__ == "__main__":
     binDir = str(pathlib.Path(__file__).resolve().parent/".."/"bin"/"release")
 
     solvers = [
-        Solver("normal_solver_cpp", GenerateSolver(f"{binDir}/normal_solver_cpp")),
+        Solver("normal_solver_cpp", GenerateSolver(
+            f"{binDir}/normal_solver_cpp")),
         Solver("normal_solver_py", GenerateSolver(
             f"python {binDir}/normal_solver.py")),
         Solver("multithreading_solver_cpp", GenerateSolver(
@@ -86,10 +88,16 @@ if __name__ == "__main__":
             end = timeit.default_timer()
 
             steps = len(result) if result != None else -1
-            correct = steps == case["expectSteps"]
-            output.writerow([solver.name, case, end-start, result, correct])
+            matchSteps = steps == case["expectSteps"]
+            correct = True if result == None and matchSteps else Correct(json.dumps(
+                case["task"]["board"]), json.dumps(result))
+
+            output.writerow(
+                [solver.name, case, end-start, result, matchSteps, correct])
 
             if correct:
-                print_green(solver.name, case, end-start, result, correct, sep=", ")
+                print_green(solver.name, case, end-start,
+                            result, matchSteps, correct, sep=", ")
             else:
-                print_red(solver.name, case, end-start, result, correct, sep=", ")
+                print_red(solver.name, case, end-start,
+                          result, matchSteps, correct, sep=", ")
