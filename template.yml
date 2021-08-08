@@ -1,0 +1,29 @@
+ROSTemplateFormatVersion: '2015-09-01'
+Transform: 'Aliyun::Serverless-2018-04-03'
+Resources:
+  puzzle:
+    Type: 'Aliyun::Serverless::Service'
+    Properties: 
+      Role: 'acs:ram::1045481767726147:role/aliyunfcdefaultrole'
+      InternetAccess: true
+    worker:
+      Type: 'Aliyun::Serverless::Function'
+      Properties:
+        Runtime: custom-container
+        Timeout: 20
+        CAPort: 9000
+        Handler: not-used
+        MemorySize: 3072
+        CodeUri: ./
+        CustomContainerConfig:
+          Image: 'registry-vpc.cn-beijing.aliyuncs.com/crazyz/puzzle:latest'
+          Command: '["python","bin/release/distributed_solver_worker.py"]'
+          Args: ''
+          AccelerationType: Default
+      Events:
+        defaultTrigger:
+          Type: HTTP
+          Properties:
+            AuthType: anonymous
+            Methods:
+              - POST

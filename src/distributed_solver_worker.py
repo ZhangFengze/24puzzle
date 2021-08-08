@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import solver
 
 
-hostName = "*"
+hostName = ""
 serverPort = 9000
 
 
