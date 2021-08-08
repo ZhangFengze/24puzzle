@@ -1,9 +1,7 @@
 # 24puzzle
 24-puzzles fast solver, solve 5x5 puzzle in seconds using cloud function compute
 
-## How to build and deploy
-
-### Deploy workers
+## Deploy workers
 ``` shell
 # for aliyun
 # edit template.yml first
@@ -20,7 +18,7 @@ python src/build.py
 python bin/release/distributed_solver_worker.py
 ```
 
-### Run solvers
+## Run solvers
 ``` shell
 # make sure all dependencies (C++20 compiler, cmake, python sdk) are installed
 # or use docker
