@@ -1,13 +1,13 @@
 import sys
-import copy
 import json
 import solver
 
 
 def Solve(task):
     for maxSteps in range(task["maxSteps"]+1):
-        curTask = copy.deepcopy(task)
-        curTask["maxSteps"] = maxSteps
+        curTask = {"board": task["board"],
+                   "steps": task["steps"],
+                   "maxSteps": maxSteps}
         result = json.loads(solver.Solve(json.dumps(curTask)))
         if result != None:
             return result
