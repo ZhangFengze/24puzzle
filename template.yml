@@ -3,6 +3,9 @@ Transform: 'Aliyun::Serverless-2018-04-03'
 Resources:
   puzzle:
     Type: 'Aliyun::Serverless::Service'
+    Properties: 
+      Role: 'acs:ram::1045481767726147:role/aliyunfcdefaultrole'
+      InternetAccess: true
     worker:
       Type: 'Aliyun::Serverless::Function'
       Properties:
