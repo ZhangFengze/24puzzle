@@ -4,7 +4,7 @@ import json
 import solver
 
 
-hostName = "*"
+hostName = ""
 serverPort = 9000
 
 
