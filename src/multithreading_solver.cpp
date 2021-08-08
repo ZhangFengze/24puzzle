@@ -70,11 +70,11 @@ Result Solve(const Task& task)
     Producer producer{ task, (int)concurrency * 8 };
     Queue<Result> results;
 
-    std::vector<std::thread> consumers;
     for (unsigned int i = 0; i < concurrency; ++i)
-        consumers.emplace_back(std::thread{ Consumer{ producer,results} });
-    for (auto& consumer : consumers)
+    {
+        std::thread consumer{ Consumer{ producer,results} };
         consumer.detach();
+    }
 
     Result result;
     for (size_t i = 0;i < producer.TotalTasks();++i)
