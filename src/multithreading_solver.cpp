@@ -66,11 +66,12 @@ private:
 
 Result Solve(const Task& task)
 {
-    Producer producer{ task, (int)std::thread::hardware_concurrency() * 8 };
+    int concurrency = std::thread::hardware_concurrency();
+    Producer producer{ task, (int)concurrency * 8 };
     Queue<Result> results;
 
     std::vector<std::thread> consumers;
-    for (unsigned int i = 0; i < std::thread::hardware_concurrency(); ++i)
+    for (unsigned int i = 0; i < concurrency; ++i)
         consumers.emplace_back(std::thread{ Consumer{ producer,results} });
     for (auto& consumer : consumers)
         consumer.detach();
