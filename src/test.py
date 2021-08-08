@@ -15,7 +15,7 @@ from common import print_green, print_red
 def Cases():
     cases = []
     curDir = str(pathlib.Path(__file__).resolve().parent)
-    for casePath in glob.glob(f"{curDir}/../../test/cases/unittest/*.json"):
+    for casePath in glob.glob(f"{curDir}/../../test/unittest/*.json"):
         with open(casePath, "r") as caseFile:
             cases.extend(json.loads(caseFile.read()))
     return cases
