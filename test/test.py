@@ -6,6 +6,8 @@ import itertools
 import sys
 import timeit
 import typing
+import datetime
+import csv
 from common import print_green, print_red
 
 
@@ -71,15 +73,23 @@ if __name__ == "__main__":
             binDir, config["url"], config["concurrency"], config["taskPreferredCount"])),
     ]
 
-    for solver, case in itertools.product(solvers, Cases()):
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    file = f"test_result_{timestamp}.csv"
+    with open(file, "w", newline="") as csvfile:
+        output = csv.writer(csvfile)
+        output.writerow(["solver", "case", "time", "result", "correctness"])
 
-        start = timeit.default_timer()
-        result = solver.func(case["task"])
-        end = timeit.default_timer()
+        for solver, case in itertools.product(solvers, Cases()):
 
-        steps = len(result) if result != None else -1
+            start = timeit.default_timer()
+            result = solver.func(case["task"])
+            end = timeit.default_timer()
 
-        if steps == case["expectSteps"]:
-            print_green(solver.name, case, end-start, result, sep=", ")
-        else:
-            print_red(solver.name, case, end-start, result, sep=", ")
+            steps = len(result) if result != None else -1
+            correct = steps == case["expectSteps"]
+            output.writerow([solver.name, case, end-start, result, correct])
+
+            if correct:
+                print_green(solver.name, case, end-start, result, correct, sep=", ")
+            else:
+                print_red(solver.name, case, end-start, result, correct, sep=", ")
