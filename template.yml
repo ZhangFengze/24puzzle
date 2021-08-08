@@ -16,6 +16,7 @@ Resources:
           Image: 'registry-vpc.cn-beijing.aliyuncs.com/crazyz/puzzle:latest'
           Command: '["python","bin/release/distributed_solver_worker.py"]'
           Args: ''
+          AccelerationType: Default
       Events:
         defaultTrigger:
           Type: HTTP
