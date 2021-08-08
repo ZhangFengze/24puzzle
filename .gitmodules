@@ -1,8 +1,8 @@
-[submodule "submodules/concurrentqueue"]
-	path = submodules/concurrentqueue
+[submodule "3rd/concurrentqueue"]
+	path = 3rd/concurrentqueue
 	url = https://github.com/cameron314/concurrentqueue.git
 	ignore = all
-[submodule "submodules/json"]
-	path = submodules/json
+[submodule "3rd/json"]
+	path = 3rd/json
 	url = https://github.com/nlohmann/json.git
 	ignore = all
