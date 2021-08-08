@@ -8,7 +8,7 @@ set(Python_USE_STATIC_LIBS TRUE)
 find_package (Python3 COMPONENTS Interpreter Development)
 Python3_add_library(${name} SHARED python.cpp)
 
-target_include_directories(${name} PRIVATE "../../submodules/json/single_include")
+target_include_directories(${name} PRIVATE "../../3rd/json/single_include")
 
 if(NOT WIN32)
     target_link_libraries(${name} PRIVATE -static-libgcc -static-libstdc++)

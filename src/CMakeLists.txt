@@ -4,8 +4,8 @@ project(puzzle)
 function (cpp_executable name sources)
     add_executable(${name} ${sources})
 
-    target_include_directories(${name} PRIVATE "../submodules/json/single_include")
-    target_include_directories(${name} PRIVATE "../submodules/concurrentqueue")
+    target_include_directories(${name} PRIVATE "../3rd/json/single_include")
+    target_include_directories(${name} PRIVATE "../3rd/concurrentqueue")
     target_include_directories(${name} PRIVATE "common")
 
     find_package(Threads REQUIRED)
