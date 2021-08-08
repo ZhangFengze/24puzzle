@@ -3,7 +3,7 @@
 
 ## Deploy workers
 ``` shell
-# for aliyun
+# for aliyun function compute
 # edit template.yml first
 # login docker with your aliyun container service account
 fun build --use-docker
