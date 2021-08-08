@@ -4,7 +4,7 @@ Resources:
   puzzle:
     Type: 'Aliyun::Serverless::Service'
     Properties: 
-      Role: 'acs:ram::1045481767726147:role/aliyunfcdefaultrole'
+      Role: 'acs:ram::1045481767726147:role/aliyunfcdefaultrole' # replace it
       InternetAccess: true
     worker:
       Type: 'Aliyun::Serverless::Function'
@@ -16,7 +16,7 @@ Resources:
         MemorySize: 3072
         CodeUri: ./
         CustomContainerConfig:
-          Image: 'registry-vpc.cn-beijing.aliyuncs.com/crazyz/puzzle:latest'
+          Image: 'registry-vpc.cn-beijing.aliyuncs.com/crazyz/puzzle:latest' # replace it
           Command: '["python","bin/release/distributed_solver_worker.py"]'
           Args: ''
           AccelerationType: Default
