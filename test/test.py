@@ -18,33 +18,17 @@ def Cases():
     return cases
 
 
-def GenerateNormalSolver():
-    curDir = str(pathlib.Path(__file__).resolve().parent)
-    cmd = f"{curDir}/../bin/normal_solver/release/bin/normal_solver"
-
+def GenerateSolver(cmd):
     def Solver(task):
-        p = subprocess.Popen(cmd,
+        p = subprocess.Popen(cmd, shell=True,
                              stdin=subprocess.PIPE, stdout=subprocess.PIPE, encoding="utf8")
         out, err = p.communicate(input=json.dumps(task))
         return json.loads(out)
     return Solver
 
 
-def GenerateMultithreadingSolver():
-    curDir = str(pathlib.Path(__file__).resolve().parent)
-    cmd = f"{curDir}/../bin/multithreading_solver/release/bin/multithreading_solver"
-
-    def Solver(task):
-        p = subprocess.Popen(cmd,
-                             stdin=subprocess.PIPE, stdout=subprocess.PIPE, encoding="utf8")
-        out, err = p.communicate(input=json.dumps(task))
-        return json.loads(out)
-    return Solver
-
-
-def GenerateDistributedSolver(url, concurrency, taskPreferredCount):
-    curDir = str(pathlib.Path(__file__).resolve().parent)
-    cmd = f"python {curDir}/../bin/distributed_solver/scheduler/release/bin/scheduler.py"
+def GenerateDistributedSolver(binDir, url, concurrency, taskPreferredCount):
+    cmd = f"python {binDir}/distributed_solver_scheduler.py"
 
     def Solver(task):
         config = {
@@ -67,11 +51,25 @@ class Solver(typing.NamedTuple):
 
 if __name__ == "__main__":
     config = json.loads(sys.stdin.read())
+    binDir = str(pathlib.Path(__file__).resolve().parent/".."/"bin"/"release")
 
-    solvers = (Solver("normal", GenerateNormalSolver()),
-               Solver("mt", GenerateMultithreadingSolver()),
-               Solver("fc", GenerateDistributedSolver(
-                   config["url"], config["concurrency"], config["taskPreferredCount"])))
+    solvers = [
+        Solver("normal_solver_cpp", GenerateSolver(f"{binDir}/normal_solver_cpp")),
+        Solver("normal_solver_py", GenerateSolver(
+            f"python {binDir}/normal_solver.py")),
+        Solver("multithreading_solver_cpp", GenerateSolver(
+            f"{binDir}/multithreading_solver_cpp")),
+        Solver("multiprocessing_solver_py", GenerateSolver(
+            f"python {binDir}/multiprocessing_solver.py")),
+        Solver("multiprocessing_solver_py_2", GenerateSolver(
+            f"python {binDir}/multiprocessing_solver2.py")),
+        Solver("multiprocessing_solver_py_3", GenerateSolver(
+            f"python {binDir}/multiprocessing_solver3.py")),
+        Solver("multiprocessing_solver_py_4", GenerateSolver(
+            f"python {binDir}/multiprocessing_solver4.py")),
+        Solver("distributed_solver_scheduler", GenerateDistributedSolver(
+            binDir, config["url"], config["concurrency"], config["taskPreferredCount"])),
+    ]
 
     for solver, case in itertools.product(solvers, Cases()):
 
