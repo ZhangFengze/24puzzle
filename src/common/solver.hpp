@@ -213,5 +213,12 @@ namespace puzzle
             }
             return tasks;
         }
+
+        static bool Correct(Board board, const std::vector<Direction>& steps)
+        {
+            for(auto step:steps)
+                Move<true>(board, step);
+            return Finished(board);
+        }
     };
 }

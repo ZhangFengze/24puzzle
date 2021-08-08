@@ -32,8 +32,26 @@ PyObject* GenerateTasks(PyObject* self, PyObject* args)
     return PyUnicode_FromString(json(tasks).dump().c_str());
 }
 
+PyObject* Correct(PyObject* self, PyObject* args)
+{
+    const char* rawBoard;
+    const char* rawSteps;
+    if (!PyArg_ParseTuple(args, "ss", &rawBoard, &rawSteps))
+        Py_RETURN_NONE;
+
+    auto board = json::parse(rawBoard).get<puzzle::Solver<5, 5>::Board>();
+    auto steps = json::parse(rawSteps).get<std::vector<puzzle::Direction>>();
+    return PyBool_FromLong(puzzle::Solver<5, 5>::Correct(board, steps));
+}
+
 static PyMethodDef methods[] =
 {
+    {
+        "Correct",
+        &Correct,
+        METH_VARARGS,
+        NULL
+    },
     {
         "GenerateTasks",
         &GenerateTasks,
