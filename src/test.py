@@ -79,7 +79,7 @@ if __name__ == "__main__":
     file = f"test_result_{timestamp}.csv"
     with open(file, "w", newline="") as csvfile:
         output = csv.writer(csvfile)
-        output.writerow(["solver", "case", "time", "result", "correctness"])
+        output.writerow(["solver", "case", "time", "result", "matchSteps", "correctness"])
 
         for case, solver in itertools.product(Cases(), solvers):
 
