@@ -33,17 +33,19 @@ def Solve(task):
         lock = manager.Lock()
         tasks = list(GenerateTasks(task, concurrency*8))
 
-        workers = [multiprocessing.Process(target=Worker, args=(tasks, index, lock, done))
-                   for _ in range(concurrency)]
-        for worker in workers:
-            worker.start()
+        try:
+            workers = [multiprocessing.Process(target=Worker, args=(tasks, index, lock, done))
+                       for _ in range(concurrency)]
+            for worker in workers:
+                worker.start()
 
-        for _ in range(len(tasks)):
-            result = done.get()
-            if result != None:
-                for worker in workers:
-                    worker.terminate()
-                return result
+            for _ in range(len(tasks)):
+                result = done.get()
+                if result != None:
+                    return result
+        finally:
+            for worker in workers:
+                worker.terminate()
 
 
 if __name__ == "__main__":

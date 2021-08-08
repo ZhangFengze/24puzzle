@@ -30,17 +30,19 @@ def Solve(task):
         for task in tasks:
             pending.put(task)
 
-        workers = [multiprocessing.Process(target=Worker, args=(pending, done))
-                   for _ in range(concurrency)]
-        for worker in workers:
-            worker.start()
+        try:
+            workers = [multiprocessing.Process(target=Worker, args=(pending, done))
+                       for _ in range(concurrency)]
+            for worker in workers:
+                worker.start()
 
-        for _ in range(len(tasks)):
-            result = done.get()
-            if result != None:
-                for worker in workers:
-                    worker.terminate()
-                return result
+            for _ in range(len(tasks)):
+                result = done.get()
+                if result != None:
+                    return result
+        finally:
+            for worker in workers:
+                worker.terminate()
 
 
 if __name__ == "__main__":
