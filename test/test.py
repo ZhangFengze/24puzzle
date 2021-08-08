@@ -79,7 +79,7 @@ if __name__ == "__main__":
         output = csv.writer(csvfile)
         output.writerow(["solver", "case", "time", "result", "correctness"])
 
-        for solver, case in itertools.product(solvers, Cases()):
+        for case, solver in itertools.product(Cases(), solvers):
 
             start = timeit.default_timer()
             result = solver.func(case["task"])
