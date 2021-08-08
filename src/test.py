@@ -15,7 +15,7 @@ from common import print_green, print_red
 def Cases():
     cases = []
     curDir = str(pathlib.Path(__file__).resolve().parent)
-    for casePath in glob.glob(f"{curDir}/cases/unittest/*.json"):
+    for casePath in glob.glob(f"{curDir}/../../test/cases/unittest/*.json"):
         with open(casePath, "r") as caseFile:
             cases.extend(json.loads(caseFile.read()))
     return cases
@@ -54,7 +54,7 @@ class Solver(typing.NamedTuple):
 
 if __name__ == "__main__":
     config = json.loads(sys.stdin.read())
-    binDir = str(pathlib.Path(__file__).resolve().parent/".."/"bin"/"release")
+    binDir = str(pathlib.Path(__file__).resolve().parent)
 
     solvers = [
         Solver("normal_solver_cpp", GenerateSolver(
