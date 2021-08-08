@@ -21,6 +21,9 @@ def Worker(pending: multiprocessing.Queue, done: multiprocessing.Queue):
 
 
 def Solve(task):
+    if not solver.Solvable(json.dumps(task["board"])):
+        return
+
     concurrency = os.cpu_count()
     with multiprocessing.Manager() as manager:
         pending = manager.Queue()

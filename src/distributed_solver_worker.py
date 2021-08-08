@@ -9,9 +9,10 @@ serverPort = 9000
 
 def Solve(tasks):
     for task in tasks:
-        result = json.loads(solver.Solve(json.dumps(task)))
-        if result != None:
-            return result
+        if solver.Solvable(json.dumps(task["board"])):
+            result = json.loads(solver.Solve(json.dumps(task)))
+            if result != None:
+                return result
 
 
 class MyServer(BaseHTTPRequestHandler):

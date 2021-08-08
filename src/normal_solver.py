@@ -4,6 +4,9 @@ import solver
 
 
 def Solve(task):
+    if not solver.Solvable(json.dumps(task["board"])):
+        return
+
     for maxSteps in range(task["maxSteps"]+1):
         curTask = {"board": task["board"],
                    "steps": task["steps"],

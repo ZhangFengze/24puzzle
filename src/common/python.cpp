@@ -3,6 +3,17 @@
 #include "solver.hpp"
 #include "adapter.hpp"
 
+PyObject* Solvable(PyObject* self, PyObject* args)
+{
+    const char* rawBoard;
+    if (!PyArg_ParseTuple(args, "s", &rawBoard))
+        Py_RETURN_NONE;
+
+    auto board = json::parse(rawBoard).get<puzzle::Solver<5, 5>::Board>();
+    bool solvable = puzzle::Solver<5, 5>::Solvable(board);
+    return PyBool_FromLong(solvable);
+}
+
 PyObject* Solve(PyObject* self, PyObject* args)
 {
     const char* rawTask;
@@ -46,6 +57,12 @@ PyObject* Correct(PyObject* self, PyObject* args)
 
 static PyMethodDef methods[] =
 {
+    {
+        "Solvable",
+        &Solvable,
+        METH_VARARGS,
+        NULL
+    },
     {
         "Correct",
         &Correct,

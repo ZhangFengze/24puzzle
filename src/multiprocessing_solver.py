@@ -18,6 +18,9 @@ def SolveOne(task):
 
 
 def Solve(task):
+    if not solver.Solvable(json.dumps(task["board"])):
+        return
+
     concurrency = os.cpu_count()
     with concurrent.futures.ProcessPoolExecutor() as executor:
         tasks = (executor.submit(SolveOne, task)

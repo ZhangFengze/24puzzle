@@ -24,6 +24,9 @@ async def solve(tasks, url: str):
 
 
 async def main(url, concurrency, taskPreferredCount, task):
+    if not solver.Solvable(json.dumps(task["board"])):
+        return
+
     tasks = json.loads(solver.GenerateTasks(
         json.dumps(task), taskPreferredCount))
     tasks = itertools.product(tasks, range(task["maxSteps"]+1))
