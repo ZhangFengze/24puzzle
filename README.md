@@ -18,11 +18,11 @@ docker run -it --rm -v `pwd`:/usr/src/myapp -w /usr/src/myapp crazyz/gcc-cmake-p
 python src/build.py
 
 # test
-# edit config.json first (see blow)
+# edit config.json first
 cat config.json | python bin/release/test.py
 
 # deploy aliyun
-# edit template.yml first (see blow)
+# edit template.yml first
 # login docker
 fun build --use-docker
 fun deploy --push-registry acr-internet
