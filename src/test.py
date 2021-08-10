@@ -89,7 +89,11 @@ if __name__ == "__main__":
 
             steps = len(result) if result != None else -1
             matchSteps = steps == case["expectSteps"]
-            correct = True if result == None and matchSteps else Correct(json.dumps(
+            correct = False
+            if result == None:
+                correct = matchSteps
+            else:
+                correct = Correct(json.dumps(
                 case["task"]["board"]), json.dumps(result[len(case["task"]["steps"]):]))
 
             output.writerow(
