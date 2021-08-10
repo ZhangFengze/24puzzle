@@ -17,7 +17,7 @@ Resources:
         CodeUri: ./
         CustomContainerConfig:
           Image: 'registry-vpc.cn-beijing.aliyuncs.com/crazyz/puzzle:latest' # replace it
-          Command: '["python","bin/release/distributed_solver_worker.py"]'
+          Command: '["python","distributed_solver_worker.py"]'
           Args: ''
           AccelerationType: Default
       Events:
