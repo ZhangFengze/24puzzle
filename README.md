@@ -4,7 +4,7 @@
 ## Benchmark
 ![](benchmark.png)
 Corei7-8750H@2.20GHz for 'normal', 'multithreading' and 'multiprocessing'  
-aliyun function compute, 300 instances, 3072MB for 'distributed'
+aliyun function compute, 3072MB, 300 instances for 'distributed'
 
 ## Deploy workers
 ``` shell
