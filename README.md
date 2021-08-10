@@ -1,6 +1,11 @@
 # 24puzzle
 24-puzzles fast solver, solve 5x5 puzzle in seconds using cloud function compute
 
+## Benchmark
+![](benchmark.png)
+Corei7-8750H@2.20GHz for 'normal', 'multithreading' and 'multiprocessing'  
+aliyun function compute, 300 instances, 3072MB for 'distributed'
+
 ## Deploy workers
 ``` shell
 # for aliyun function compute
